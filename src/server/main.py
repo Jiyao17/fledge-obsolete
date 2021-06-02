@@ -21,9 +21,8 @@ def test_loop(dataloader, model, loss_fn):
             test_loss += loss_fn(pred, y.cuda()).item()
             correct += (pred.argmax(1) == y.cuda()).type(torch.float).sum().item()
             
-    test_loss /= size
     correct /= size
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"Accuracy: {(100*correct):>0.1f}%\n")
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
