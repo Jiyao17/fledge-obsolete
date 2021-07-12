@@ -8,7 +8,7 @@ from torchvision.transforms import ToTensor
 
 # federated tools
 from utils.model import FashionMNIST_CNN
-from utils.server import ServerNet, Server
+from utils.server import Server
 
 EPOCH_NUM = 40
 
@@ -29,7 +29,7 @@ def test_loop(dataloader, model, loss_fn):
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_dataset = datasets.FashionMNIST(
-        root="../data",
+        root="~/fledge/data",
         train=False,
         download=True,
         transform=ToTensor()
@@ -54,14 +54,5 @@ if __name__ == "__main__":
         print("Testing new model......")
         test_loop(test_dataloader, server.model, torch.nn.CrossEntropyLoss())
 
-
-
-    # net = ServerNet(5000, 3)
-    # net.connect_clients()
-    # for index, conn in enumerate(net.conn_list):
-    #     msg = conn.recv(1024)
-    #     print("Message from client %d: %s" % (index, msg.decode()))
-    #     msg = "Message %d received." % (index)
-    #     conn.send(msg.encode())
 
 

@@ -1,7 +1,8 @@
 {
     "self":{
         "address": ["127.0.0.1", 6000],
-        "device": "cuda"
+        "device": "cuda",
+        "dataset_path": "~/fledge/data"
     },
 
     "server":{
