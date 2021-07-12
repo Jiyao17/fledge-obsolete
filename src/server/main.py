@@ -10,7 +10,7 @@ from torchvision.transforms import ToTensor
 from utils.model import FashionMNIST_CNN
 from utils.server import Server
 
-EPOCH_NUM = 40
+EPOCH_NUM = 50
 
 
 def test_loop(dataloader, model, loss_fn):

@@ -16,7 +16,7 @@ from utils.model import FashionMNIST_CNN
 
 local_epoch_num=40
 batch_size=32
-lr=0.01
+lr=0.02
 
 dataset_size = 60000
 
@@ -63,12 +63,12 @@ if __name__ == "__main__":
 
         print("Training new models......")
         for j in range(client_num):
-            print("Client %d training new model......" % j)
+            # print("Client %d training new model......" % j)
             client_list[j].train_model()
 
         print("Uploading new models......")
         for j in range(client_num):
-            print("Client %d uploading new models......" % j)
+            # print("Client %d uploading new models......" % j)
             client_list[j].upload_model()
 
 

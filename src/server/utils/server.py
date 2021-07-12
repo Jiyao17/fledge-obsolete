@@ -138,7 +138,6 @@ class Server():
         """
         Server aggregates new models.
         """
-
         # collect models from clients
         state_dict_list: List[Dict[str, Tensor]] = []
         for conn in self.net.client_conn_list:

@@ -80,7 +80,6 @@ class Client():
         # get model
         # sd_len = net_list[j].recv(4)
         sd_len = self.net.recv(4)
-        print(int.from_bytes(sd_len, 'big'))
         state_bytes = self.net.recv(int.from_bytes(sd_len, 'big'))
         # print("Model downloaded.")
         state_dict = pickle.loads(state_bytes)
