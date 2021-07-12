@@ -10,6 +10,8 @@ from torchvision.transforms import ToTensor
 from utils.model import FashionMNIST_CNN
 from utils.server import ServerNet, Server
 
+EPOCH_NUM = 40
+
 
 def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
@@ -38,15 +40,17 @@ if __name__ == "__main__":
     config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
     server = Server(config_file, model)
     print("Server initialized")
-    server.connect_clients()
+    server.init_client_net()
     print("Clients connected")
 
-    for i in range(40):
+    for i in range(EPOCH_NUM):
+        print("Epoch %d......" % i)
+
         print("Sending model to clients......")
-        server.send_model()
+        server.distribute_model()
         print("Receiving new models and updating......")
         
-        server.update_model()
+        server.aggregate_model()
         print("Testing new model......")
         test_loop(test_dataloader, server.model, torch.nn.CrossEntropyLoss())
 
