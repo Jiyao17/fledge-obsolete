@@ -2,6 +2,7 @@
 import socket
 import json
 import pickle
+from numpy.core.records import array
 
 from torch import nn
 from torch.optim import Optimizer
@@ -12,20 +13,10 @@ from torchvision.transforms import ToTensor
 
 
 class ClientNet():
-    def __init__(self, config_file="config.json"):
-        try:
-            with open(config_file, "r") as f:
-                config = json.load(f)
-        except:
-            raise "Cannot open/parse config file."
+    def __init__(self, server_addr: tuple):
+        self.server_addr = server_addr
         
-        try:
-            server_ip = config["server"]["address"][0]
-            server_port = config["server"]["address"][1]
-        except:
-            raise "Invalid config file."
-
-        self.server_addr = ((server_ip, server_port))
+        self.send_flag = 0
     
     def connect_to_server(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -45,32 +36,34 @@ class ClientNet():
             return msg
 
     def send(self, data):
-        return self.sock.send(data)
+        sent_len = 0
+        data_len = len(data)
+
+        while sent_len < data_len:
+            sent_len += self.sock.send(data[sent_len:])
 
 class Client():
     def __init__(self, 
-            config_file="config.json",
-            dataloader:DataLoader=None,
-            model:nn.Module=None,
-            loss_fn=nn.CrossEntropyLoss(),
-            optimizer:Optimizer=None
+            server_addr: tuple=("127.0.0.1", 5000),
+            dataloader: DataLoader=None,
+            model: nn.Module=None,
+            loss_fn = nn.CrossEntropyLoss(),
+            optimizer: Optimizer=None,
+            device: str="cpu"
             ):
-        try:
-            with open(config_file, "r") as f:
-                config = json.load(f)
-        except:
-            raise "Cannot open/parse config file."
         if dataloader == None:
             raise "Invalid dataloader."
         if model == None:
             raise "Invalid model."
+        if optimizer == None:
+            raise "Invalid optimizer."
 
-        self.device:str = config["self"]["device"]
-        self.net = ClientNet(config_file)
+        self.net = ClientNet(server_addr)
         self.dataloader = dataloader
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer=optimizer
+        self.device = device
 
     def init(self):
         self.net.connect_to_server()
@@ -80,6 +73,7 @@ class Client():
         # get model
         # sd_len = net_list[j].recv(4)
         sd_len = self.net.recv(4)
+        print("model len: %d" % int.from_bytes(sd_len, 'big'))
         state_bytes = self.net.recv(int.from_bytes(sd_len, 'big'))
         # print("Model downloaded.")
         state_dict = pickle.loads(state_bytes)

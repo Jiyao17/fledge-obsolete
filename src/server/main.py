@@ -1,16 +1,18 @@
 
+import sys
+
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
-
 # federated tools
 from utils.model import FashionMNIST_CNN
 from utils.server import Server
 
 EPOCH_NUM = 50
+result_dir = "result.txt"
 
 
 def test_loop(dataloader, model, loss_fn):
@@ -26,7 +28,10 @@ def test_loop(dataloader, model, loss_fn):
     correct /= size
     print(f"Accuracy: {(100*correct):>0.1f}%\n")
 
+    return correct
+
 if __name__ == "__main__":
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_dataset = datasets.FashionMNIST(
         root="~/fledge/data",
@@ -43,6 +48,8 @@ if __name__ == "__main__":
     server.init_client_net()
     print("Clients connected")
 
+    f = open(result_dir, "a+")
+    f.write("\n")
     for i in range(EPOCH_NUM):
         print("Epoch %d......" % i)
 
@@ -52,7 +59,11 @@ if __name__ == "__main__":
         
         server.aggregate_model()
         print("Testing new model......")
-        test_loop(test_dataloader, server.model, torch.nn.CrossEntropyLoss())
+        correct = test_loop(test_dataloader, server.model, torch.nn.CrossEntropyLoss())
 
+        if i % 10 == 9:
+            f.write(f"{(100*correct):>0.1f}% ")
+
+    f.close()
 
 

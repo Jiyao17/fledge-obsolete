@@ -1,12 +1,12 @@
 
-import pickle
-import torch
+
 from typing import List
+import sys
 
 
-from torch import nn, optim
+from torch import optim
 from torch.nn.modules.loss import CrossEntropyLoss
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader, Subset, dataset, random_split
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
@@ -14,40 +14,57 @@ from utils.client import Client
 from utils.model import FashionMNIST_CNN
 
 
-local_epoch_num=40
 batch_size=32
-lr=0.02
-
-dataset_size = 60000
-
-client_num=3
-
-
-
 
 if __name__ == "__main__":
-    # device = "cuda" if torch.cuda.is_available() else "cpu"
+    
+    # read arguments
+    # lr = int(sys.argv[1])     # learning rate
+    # client_num = int(sys.argv[2])
+    # data_num_per_client = int(sys.argv[3])
+    # local_epoch_num = int(sys.argv[4])
+    # batch_size = int(sys.argv[5])
+    # data_path = sys.argv[6]
+    # server_ip = sys.argv[7]
+    # server_port = int(sys.argv[8])
+    # device = sys.argv[9]    # training device
+
+    lr = 0.01     # learning rate
+    client_num = 4
+    data_num_per_client = 15000
+    local_epoch_num = 50
+    batch_size =32
+    data_path = "~/fledge/data"
+    server_ip = "127.0.0.1"
+    server_port = 5000
+    device = "cuda"    # training device
+
 
     train_dataset = datasets.FashionMNIST(
-        root="~/fledge/data",
+        root=data_path,
         train=True,
         download=True,
-        transform=ToTensor()
+        transform=ToTensor(),
         )
-
-    config_file = "./config.json"
+    dataset_size = len(train_dataset)
     client_list: List[Client] = []
+
+    # subset division
+    if data_num_per_client * client_num > dataset_size:
+        raise "No enough data!"
+    subset_lens = [ data_num_per_client for j in range(dataset_size//data_num_per_client) ]
+    subset_list = random_split(train_dataset, subset_lens)
 
     for i in range(client_num):
         print("Loading data......")
-
-        data_range = [j for j in range(dataset_size//client_num *i, dataset_size//client_num *(i+1))]
-        dataloader = DataLoader(Subset(train_dataset, data_range), batch_size=batch_size)
+        # data_range = [j for j in range(dataset_size//client_num *i, dataset_size//client_num *(i+1))]
+        print("dataset size per client: %d" % len(subset_list[i]))
+        dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True)
         model = FashionMNIST_CNN()
         loss_fn = CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=lr)
 
-        client = Client(config_file, dataloader, model, loss_fn, optimizer)
+        client = Client(dataloader=dataloader, model=model, optimizer=optimizer, device="cuda")
         client.init()
         client_list.append(client)
 

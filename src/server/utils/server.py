@@ -35,6 +35,8 @@ class ServerNet():
         self.sock = None
         self.client_conn_list: List[socket.socket] = []
 
+        self.send_flag = 0
+
     def init_net(self):
         """
         all servers in the network should do this before any network action
@@ -66,8 +68,8 @@ class ServerNet():
             self.client_conn_list.append(conn)
 
     @staticmethod
-    def recv(conn: socket.socket, len):
-        """
+    def recv(conn: socket.socket, length):
+        r"""
         recv long msg
         """
         # msg = "".encode()
@@ -77,17 +79,27 @@ class ServerNet():
 
         # return msg
 
-        if len <= 10000:
-            return conn.recv(len)
+        if length <= 10000:
+            return conn.recv(length)
         else:
             msg = "".encode()
-            while len > 10000:
+            while length > 10000:
                 # print("received %d bytes of %d bytes" % (received_len, recv_len))
                 msg  += conn.recv(10000)
-                len -= 10000
-            msg += conn.recv(len)
+                length -= 10000
+            msg += conn.recv(length)
 
             return msg
+
+    @staticmethod
+    def send(conn: socket.socket, data):
+        sent_len = 0
+        data_len = len(data)
+
+        while sent_len < data_len:
+            sent_len += conn.send(data[sent_len:])
+
+        
 
 
 class Server():
@@ -143,7 +155,7 @@ class Server():
         for conn in self.net.client_conn_list:
             dict_len = ServerNet.recv(conn, 4)
             len_int = int.from_bytes(dict_len, 'big')
-            # print("Model length: %d" % len_int)
+            print("Model length: %d" % len_int)
             state_bytes = ServerNet.recv(conn, len_int)
             state_dict: Dict[str, Tensor] = pickle.loads(state_bytes)
             state_dict_list.append(state_dict) # optimizable
