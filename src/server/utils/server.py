@@ -69,16 +69,6 @@ class ServerNet():
 
     @staticmethod
     def recv(conn: socket.socket, length):
-        r"""
-        recv long msg
-        """
-        # msg = "".encode()
-        # while length > 0:
-        #     msg  += conn.recv(65536)
-        #     length -= 65536
-
-        # return msg
-
         if length <= 10000:
             return conn.recv(length)
         else:
@@ -117,6 +107,9 @@ class Server():
         self.device = config["self"]["device"]
         self.model.to(self.device)
         self.model_state_dict = self.model.state_dict()
+        self.model_len = len(pickle.dumps(self.model_state_dict))
+        print("model len: %d" % self.model_len)
+
 
         # init net functions
         self.net = ServerNet(config_file)
@@ -156,7 +149,7 @@ class Server():
             dict_len = ServerNet.recv(conn, 4)
             len_int = int.from_bytes(dict_len, 'big')
             print("Model length: %d" % len_int)
-            state_bytes = ServerNet.recv(conn, len_int)
+            state_bytes = ServerNet.recv(conn, int.from_bytes(dict_len, 'big'))
             state_dict: Dict[str, Tensor] = pickle.loads(state_bytes)
             state_dict_list.append(state_dict) # optimizable
 

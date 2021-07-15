@@ -1,6 +1,6 @@
 
 import sys
-
+import pickle
 import torch
 from torch import nn
 from torch.utils.data import DataLoader
@@ -42,6 +42,10 @@ if __name__ == "__main__":
     test_dataloader = DataLoader(test_dataset, batch_size=64)
 
     model = FashionMNIST_CNN()
+
+    model_len = len(pickle.dumps(model.state_dict()))
+    print("raw model len: %d" % model_len)
+
     config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
     server = Server(config_file, model)
     print("Server initialized")

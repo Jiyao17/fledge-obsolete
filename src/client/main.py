@@ -2,7 +2,7 @@
 
 from typing import List
 import sys
-
+import pickle
 
 from torch import optim
 from torch.nn.modules.loss import CrossEntropyLoss
@@ -30,8 +30,8 @@ if __name__ == "__main__":
     # device = sys.argv[9]    # training device
 
     lr = 0.01     # learning rate
-    client_num = 4
-    data_num_per_client = 15000
+    client_num = 6
+    data_num_per_client = 2500
     local_epoch_num = 50
     batch_size =32
     data_path = "~/fledge/data"
@@ -61,6 +61,9 @@ if __name__ == "__main__":
         print("dataset size per client: %d" % len(subset_list[i]))
         dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True)
         model = FashionMNIST_CNN()
+
+        model_len = len(pickle.dumps(model.state_dict()))
+        print("raw model len: %d" % model_len)
         loss_fn = CrossEntropyLoss()
         optimizer = optim.SGD(model.parameters(), lr=lr)
 
@@ -80,7 +83,7 @@ if __name__ == "__main__":
 
         print("Training new models......")
         for j in range(client_num):
-            # print("Client %d training new model......" % j)
+            print("Client %d training new model......" % j)
             client_list[j].train_model()
 
         print("Uploading new models......")
