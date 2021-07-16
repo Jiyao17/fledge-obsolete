@@ -10,40 +10,49 @@ from typing import List, Dict
 
 
 class ServerNet():
-    def __init__(self, config_file="config.json"):
-        try:
-            with open(config_file, "r") as f:
-                config = json.load(f)
-        except:
-            raise "Cannot open/parse config file."
+    def __init__(self, single=True, client_num=3, addr=("127.0.0.1", 5000), config_file="config.json"):
+
+        self.single = single # single server or multiple servers
+        self.client_num = client_num
+        self.addr = addr
+        if self.single == False:
+            try:
+                with open(config_file, "r") as f:
+                    config = json.load(f)
+            except:
+                raise "Cannot open/parse config file."
+            
+            try:
+                self.ip = config["self"]["address"][0]
+                self.port = config["self"]["address"][1]
+                self.index = config["self"]["index"]
+
+                self.server_num = config["servers"]["number"]
+                self.server_addresses = config["servers"]["addresses"]
+                self.server_topology = config["servers"]["topology"]
+
+                self.client_num = config["clients"]["number"]
+            except:
+                raise "Invalid config file."
+
+            # init by: init_net, connect_servers, connect_clients
+            self.server_conn_list = [None for i in range(self.server_num)]
         
-        try:
-            self.ip = config["self"]["address"][0]
-            self.port = config["self"]["address"][1]
-            self.index = config["self"]["index"]
-
-            self.server_num = config["servers"]["number"]
-            self.server_addresses = config["servers"]["addresses"]
-            self.server_topology = config["servers"]["topology"]
-
-            self.client_num = config["clients"]["number"]
-        except:
-            raise "Invalid config file."
-
-        # init by: init_net, connect_servers, connect_clients
-        self.server_conn_list = [None for i in range(self.server_num)]
         self.sock = None
         self.client_conn_list: List[socket.socket] = []
-
-        self.send_flag = 0
 
     def init_net(self):
         """
         all servers in the network should do this before any network action
         """
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)       
-        self.sock.bind((self.ip, self.port))
-        self.sock.listen(self.server_num + self.client_num)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if self.single: 
+            self.sock.bind(self.addr)
+            self.sock.listen(self.client_num)
+
+        else:
+            self.sock.bind((self.ip, self.port))
+            self.sock.listen(self.server_num + self.client_num)
 
     def connect_servers(self):
         # connect to other servers
@@ -89,30 +98,30 @@ class ServerNet():
         while sent_len < data_len:
             sent_len += conn.send(data[sent_len:])
 
-        
-
-
 class Server():
-    def __init__(self, config_file="config.json", model=None):
-        try:
-            with open(config_file, "r") as f:
-                config = json.load(f)
-        except:
-            raise "Cannot open/parse config file."
+    def __init__(self, single=True,  client_num=3, model=None, device="cpu"):
 
+        self.single = single
         # init learning model
         if model == None:
             raise "Invalid model."
         self.model: nn.Module = model
-        self.device = config["self"]["device"]
+        # self.model_len = len(pickle.dumps(self.model.state_dict()))
+        # print("self.model len: %d" % self.model_len)
+        self.device = device
         self.model.to(self.device)
+        # self.model_len = len(pickle.dumps(self.model.state_dict()))
+        # print("self.model len in cuda: %d" % self.model_len)
         self.model_state_dict = self.model.state_dict()
         self.model_len = len(pickle.dumps(self.model_state_dict))
-        print("model len: %d" % self.model_len)
-
+        # print("model len: %d" % self.model_len)
 
         # init net functions
-        self.net = ServerNet(config_file)
+        if self.single:
+            net = ServerNet(client_num=client_num)
+        else:
+            net = ServerNet(single=False)
+        self.net = net
     
     def init_server_net(self):
         """
@@ -148,7 +157,7 @@ class Server():
         for conn in self.net.client_conn_list:
             dict_len = ServerNet.recv(conn, 4)
             len_int = int.from_bytes(dict_len, 'big')
-            print("Model length: %d" % len_int)
+            # print("Model length: %d" % len_int)
             state_bytes = ServerNet.recv(conn, int.from_bytes(dict_len, 'big'))
             state_dict: Dict[str, Tensor] = pickle.loads(state_bytes)
             state_dict_list.append(state_dict) # optimizable
@@ -165,5 +174,18 @@ class Server():
         self.model.load_state_dict(self.model_state_dict)
         self.model.to(self.device)
 
-    def server_sync(self):
-        pass
+
+class SServer(Server):
+    def __init__(self, model):
+        super().__init__(model=model)
+
+
+class MServer(Server):
+    def __init__(self, model, config_file):
+        super().__init__(model=model)
+        
+        try:
+            with open(config_file, "r") as f:
+                config = json.load(f)
+        except:
+            raise "Cannot open/parse config file."

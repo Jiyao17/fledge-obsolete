@@ -32,6 +32,10 @@ def test_loop(dataloader, model, loss_fn):
 
 if __name__ == "__main__":
 
+    client_num = 6
+
+
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_dataset = datasets.FashionMNIST(
         root="~/fledge/data",
@@ -47,7 +51,7 @@ if __name__ == "__main__":
     print("raw model len: %d" % model_len)
 
     config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
-    server = Server(config_file, model)
+    server = Server(client_num=client_num, model=model, device="cuda")
     print("Server initialized")
     server.init_client_net()
     print("Clients connected")
@@ -57,12 +61,12 @@ if __name__ == "__main__":
     for i in range(EPOCH_NUM):
         print("Epoch %d......" % i)
 
-        print("Sending model to clients......")
+        # print("Sending model to clients......")
         server.distribute_model()
-        print("Receiving new models and updating......")
+        # print("Receiving new models and updating......")
         
         server.aggregate_model()
-        print("Testing new model......")
+        # print("Testing new model......")
         correct = test_loop(test_dataloader, server.model, torch.nn.CrossEntropyLoss())
 
         if i % 10 == 9:

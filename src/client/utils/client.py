@@ -64,9 +64,10 @@ class Client():
         self.loss_fn = loss_fn
         self.optimizer=optimizer
         self.device = device
+        self.model.to(self.device)
         self.model_state_dict = self.model.state_dict()
         self.model_len = len(pickle.dumps(self.model_state_dict))
-        print("model len: %d" % self.model_len)
+        print("self.model len: %d" % self.model_len)
 
     def init(self):
         self.net.connect_to_server()
@@ -76,11 +77,11 @@ class Client():
         # get model
         # sd_len = net_list[j].recv(4)
         sd_len = self.net.recv(4)
-        print("model len: %d" % int.from_bytes(sd_len, 'big'))
+        # print("download model len: %d" % int.from_bytes(sd_len, 'big'))
         state_bytes = self.net.recv(int.from_bytes(sd_len, 'big'))
-        print("Model downloaded.")
+        # print("Model downloaded.")
         state_dict = pickle.loads(state_bytes)
-        print("Loading model to GPU")
+        # print("Loading model to GPU")
         self.model.load_state_dict(state_dict)
         self.model.to(self.device)
 
@@ -100,7 +101,7 @@ class Client():
         # upload model
         state_dict = self.model.state_dict()
         state_bytes = pickle.dumps(state_dict)
-        print("uploading model with length: %d" % len(state_bytes))
+        # print("uploading model with length: %d" % len(state_bytes))
         self.net.send(len(state_bytes).to_bytes(4, 'big'))
         self.net.send(state_bytes)
 

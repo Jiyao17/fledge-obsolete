@@ -52,14 +52,17 @@ if __name__ == "__main__":
     # subset division
     if data_num_per_client * client_num > dataset_size:
         raise "No enough data!"
-    subset_lens = [ data_num_per_client for j in range(dataset_size//data_num_per_client) ]
-    subset_list = random_split(train_dataset, subset_lens)
+    data_num = data_num_per_client*client_num
+    subset = random_split(train_dataset, [data_num, len(train_dataset)-data_num])[0]
+
+    subset_lens = [ data_num_per_client for j in range(client_num) ]
+    subset_list = random_split(subset, subset_lens)
 
     for i in range(client_num):
         print("Loading data......")
         # data_range = [j for j in range(dataset_size//client_num *i, dataset_size//client_num *(i+1))]
         print("dataset size per client: %d" % len(subset_list[i]))
-        dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True)
+        dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True, drop_last=True)
         model = FashionMNIST_CNN()
 
         model_len = len(pickle.dumps(model.state_dict()))
@@ -75,18 +78,18 @@ if __name__ == "__main__":
     for i in range(local_epoch_num):
         print("Epoch %d" % i)
         
-        print("Downloading model......")
+        # print("Downloading model......")
         for j in range(client_num):
             # get model
             # print("Client %d downloading model......" % j)
             client_list[j].download_model()
 
-        print("Training new models......")
+        # print("Training new models......")
         for j in range(client_num):
-            print("Client %d training new model......" % j)
+            # print("Client %d training new model......" % j)
             client_list[j].train_model()
 
-        print("Uploading new models......")
+        # print("Uploading new models......")
         for j in range(client_num):
             # print("Client %d uploading new models......" % j)
             client_list[j].upload_model()
