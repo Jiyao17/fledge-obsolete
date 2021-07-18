@@ -4,9 +4,9 @@ from typing import List
 import sys
 import pickle
 
-from torch import optim
+from torch import optim, nn
 from torch.nn.modules.loss import CrossEntropyLoss
-from torch.utils.data import DataLoader, Subset, dataset, random_split
+from torch.utils.data import DataLoader, Subset, dataset, Dataset, random_split
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
@@ -23,6 +23,7 @@ if __name__ == "__main__":
     client_num: int = int(sys.argv[2])
     data_num_per_client: int = int(sys.argv[3])
     g_epoch_num: int = int(sys.argv[4])
+    task = sys.argv[5]
     # batch_size = int(sys.argv[5])
     # data_path = sys.argv[6]
     # server_ip = sys.argv[7]
@@ -39,13 +40,22 @@ if __name__ == "__main__":
     server_port = 5000
     device = "cuda"    # training device
 
+    train_dataset: Dataset = None
+    model: nn.Module = None
+    if task == "FashionMNIST":
+        train_dataset = datasets.FashionMNIST(
+            root=data_path,
+            train=True,
+            download=True,
+            transform=ToTensor(),
+            )
+        model = FashionMNIST_CNN()
+    elif task == "CIFAR":
+        pass
+    else:
+        raise "Task not supported yet."
 
-    train_dataset = datasets.FashionMNIST(
-        root=data_path,
-        train=True,
-        download=True,
-        transform=ToTensor(),
-        )
+
     dataset_size = len(train_dataset)
     client_list: List[Client] = []
 
@@ -63,7 +73,7 @@ if __name__ == "__main__":
         # data_range = [j for j in range(dataset_size//client_num *i, dataset_size//client_num *(i+1))]
         print("dataset size per client: %d" % len(subset_list[i]))
         dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True, drop_last=True)
-        model = FashionMNIST_CNN()
+        
 
         model_len = len(pickle.dumps(model.state_dict()))
         print("raw model len: %d" % model_len)

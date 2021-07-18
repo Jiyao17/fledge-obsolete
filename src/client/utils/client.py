@@ -60,7 +60,7 @@ class Client():
 
         self.net = ClientNet(server_addr)
         self.dataloader = dataloader
-        self.model: nn.Module = model
+        self.model = model
         self.loss_fn = loss_fn
         self.optimizer=optimizer
         self.device = device

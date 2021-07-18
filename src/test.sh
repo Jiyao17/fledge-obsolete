@@ -3,7 +3,7 @@ run_num=$1
 epoch_num=$2
 lr_base=$3
 data_per_client=$4
-client_nums=( 9 )
+client_nums=( 3 6 9 12 )
 
 source ~/fledge/python/bin/activate
 echo "run test for $run_num times"
