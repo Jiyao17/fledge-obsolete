@@ -19,21 +19,21 @@ batch_size=32
 if __name__ == "__main__":
     
     # read arguments
-    # lr = int(sys.argv[1])     # learning rate
-    # client_num = int(sys.argv[2])
-    # data_num_per_client = int(sys.argv[3])
-    # local_epoch_num = int(sys.argv[4])
+    lr: float = float(sys.argv[1])     # learning rate
+    client_num: int = int(sys.argv[2])
+    data_num_per_client: int = int(sys.argv[3])
+    g_epoch_num: int = int(sys.argv[4])
     # batch_size = int(sys.argv[5])
     # data_path = sys.argv[6]
     # server_ip = sys.argv[7]
     # server_port = int(sys.argv[8])
     # device = sys.argv[9]    # training device
 
-    lr = 0.01     # learning rate
-    client_num = 6
-    data_num_per_client = 2500
-    local_epoch_num = 50
-    batch_size =32
+    # lr = 0.01     # learning rate
+    # client_num = 6
+    # data_num_per_client = 5000
+    # g_epoch_num = 50
+    batch_size = 64
     data_path = "~/fledge/data"
     server_ip = "127.0.0.1"
     server_port = 5000
@@ -75,7 +75,7 @@ if __name__ == "__main__":
         client_list.append(client)
 
 
-    for i in range(local_epoch_num):
+    for i in range(g_epoch_num):
         print("Epoch %d" % i)
         
         # print("Downloading model......")

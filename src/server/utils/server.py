@@ -10,7 +10,10 @@ from typing import List, Dict
 
 
 class ServerNet():
-    def __init__(self, single=True, client_num=3, addr=("127.0.0.1", 5000), config_file="config.json"):
+    def __init__(self, single=True, client_num=3,
+            addr=("127.0.0.1", 5000),
+            config_file: str= None
+            ):
 
         self.single = single # single server or multiple servers
         self.client_num = client_num
@@ -23,8 +26,7 @@ class ServerNet():
                 raise "Cannot open/parse config file."
             
             try:
-                self.ip = config["self"]["address"][0]
-                self.port = config["self"]["address"][1]
+                self.addr = tuple(config["self"]["address"])
                 self.index = config["self"]["index"]
 
                 self.server_num = config["servers"]["number"]
@@ -46,15 +48,18 @@ class ServerNet():
         all servers in the network should do this before any network action
         """
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind(self.addr)
+        listen_num = 0
         if self.single: 
-            self.sock.bind(self.addr)
-            self.sock.listen(self.client_num)
-
+            listen_num = self.client_num
         else:
-            self.sock.bind((self.ip, self.port))
-            self.sock.listen(self.server_num + self.client_num)
+            listen_num = self.client_num + self.server_num
+        self.sock.listen(listen_num)
 
     def connect_servers(self):
+        r"""
+        Not used or tested yet
+        """
         # connect to other servers
         # servers should call this function in the order of their indexes
         i = self.index + 1
@@ -99,15 +104,18 @@ class ServerNet():
             sent_len += conn.send(data[sent_len:])
 
 class Server():
-    def __init__(self, single=True,  client_num=3, model=None, device="cpu"):
+    def __init__(self,
+            single: bool=True,  client_num: int=3,
+            model: nn.Module=None, device: str="cpu",
+            config_file="config.json"
+            ):
 
         self.single = single
-        # init learning model
         if model == None:
             raise "Invalid model."
-        self.model: nn.Module = model
+        self.model = model
         # self.model_len = len(pickle.dumps(self.model.state_dict()))
-        # print("self.model len: %d" % self.model_len)
+        # print("self.model len in mem: %d" % self.model_len)
         self.device = device
         self.model.to(self.device)
         # self.model_len = len(pickle.dumps(self.model.state_dict()))
@@ -120,12 +128,12 @@ class Server():
         if self.single:
             net = ServerNet(client_num=client_num)
         else:
-            net = ServerNet(single=False)
+            net = ServerNet(single=False, config_file=config_file)
         self.net = net
     
     def init_server_net(self):
         """
-        not useful in current work
+        not used or tested yet
         """
         self.net.init_net()
         self.net.connect_servers()
@@ -145,7 +153,7 @@ class Server():
             # print(msg_len)
             # print(len(b))
             # print(int.from_bytes(b, "big"))
-            conn.send(len(state_bytes).to_bytes(4, 'big'))
+            # conn.send(len(state_bytes).to_bytes(4, 'big'))
             conn.send(state_bytes)
 
     def aggregate_model(self):
@@ -155,10 +163,10 @@ class Server():
         # collect models from clients
         state_dict_list: List[Dict[str, Tensor]] = []
         for conn in self.net.client_conn_list:
-            dict_len = ServerNet.recv(conn, 4)
-            len_int = int.from_bytes(dict_len, 'big')
+            # dict_len = ServerNet.recv(conn, 4)
+            # len_int = int.from_bytes(dict_len, 'big')
             # print("Model length: %d" % len_int)
-            state_bytes = ServerNet.recv(conn, int.from_bytes(dict_len, 'big'))
+            state_bytes = ServerNet.recv(conn, self.model_len)
             state_dict: Dict[str, Tensor] = pickle.loads(state_bytes)
             state_dict_list.append(state_dict) # optimizable
 

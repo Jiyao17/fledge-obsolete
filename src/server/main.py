@@ -11,8 +11,6 @@ from torchvision.transforms import ToTensor
 from utils.model import FashionMNIST_CNN
 from utils.server import Server
 
-EPOCH_NUM = 50
-result_dir = "result.txt"
 
 
 def test_loop(dataloader, model, loss_fn):
@@ -32,8 +30,10 @@ def test_loop(dataloader, model, loss_fn):
 
 if __name__ == "__main__":
 
-    client_num = 6
-
+    client_num: int = int(sys.argv[1])
+    # client_num = 6
+    EPOCH_NUM: int = int(sys.argv[2])
+    result_dir = "result.txt"
 
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
