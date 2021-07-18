@@ -31,26 +31,30 @@ def test_loop(dataloader, model, loss_fn):
 if __name__ == "__main__":
 
     client_num: int = int(sys.argv[1])
-    # client_num = 6
     EPOCH_NUM: int = int(sys.argv[2])
+    task: str = sys.argv[3]
+
     result_dir = "result.txt"
-
-
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    test_dataset = datasets.FashionMNIST(
-        root="~/fledge/data",
-        train=False,
-        download=True,
-        transform=ToTensor()
-        )
+
+    if task == "FashionMNIST":
+        test_dataset = datasets.FashionMNIST(
+            root="~/fledge/data",
+            train=False,
+            download=True,
+            transform=ToTensor()
+            )
+        model = FashionMNIST_CNN()
+    elif task == "CIFAR":
+        pass
+    else:
+        raise "Task not supported yet."
+    
     test_dataloader = DataLoader(test_dataset, batch_size=64)
-
-    model = FashionMNIST_CNN()
-
     model_len = len(pickle.dumps(model.state_dict()))
     print("raw model len: %d" % model_len)
 
-    config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
+    # config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
     server = Server(client_num=client_num, model=model, device="cuda")
     print("Server initialized")
     server.init_client_net()
