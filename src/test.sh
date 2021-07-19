@@ -13,7 +13,7 @@ source ~/fledge/python/bin/activate
 for ((i=0; i<${#client_nums[@]}; i++))
 do
     echo "run test for $run_num times"
-    lr=`echo $lr_base ${client_nums[$i]} | awk '{printf "%1.2f\n", $1*$2}'` 
+    lr_local=`echo $lr_base ${client_nums[$i]} | awk '{printf "%1.2f\n", $1*$2}'` 
     # lr=$lr_base
     echo "local learning rate: $lr"
     echo "client num: ${client_nums[$i]}"
@@ -21,8 +21,10 @@ do
     echo "epoch num: $epoch_num"
     echo "task: $task"
 
-    echo "lr=$lr client_num=${client_nums[$i]} data per client=$data_per_client \
-        epoch num=$epoch_num task=$task" >> $result_file
+    args="lr_local=$lr_local client_num=${client_nums[$i]} data_per_client=$data_per_client"
+    args1="epoch_num=$epoch_num task=$task"
+    echo "" >> $result_file
+    echo "$args $args1" >> $result_file
 
     for ((j=0; j<$run_num; j++))
     do
@@ -31,11 +33,11 @@ do
 
         sleep 10
 
-        python ./client/main.py $lr ${client_nums[$i]} $data_per_client $epoch_num $task &
+        python ./client/main.py $lr_local ${client_nums[$i]} $data_per_client $epoch_num $task &
         clients_pid=$!
 
         wait $server_pid
         wait $clients_pid
     done
-done
 
+done

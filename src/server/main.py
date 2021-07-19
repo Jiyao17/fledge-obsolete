@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print("Clients connected")
 
     f = open(result_dir, "a+")
-    f.write("\n")
+    # f.write("\n")
     for i in range(EPOCH_NUM):
         print("Epoch %d......" % i)
 
