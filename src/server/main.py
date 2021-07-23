@@ -76,6 +76,7 @@ if __name__ == "__main__":
         if i % 10 == 9:
             f.write(f"{(100*correct):>0.1f}% ")
 
+    # f.write("\n")
     f.close()
 
 

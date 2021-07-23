@@ -83,14 +83,14 @@ class ServerNet():
 
     @staticmethod
     def recv(conn: socket.socket, length):
-        if length <= 10000:
+        if length <= 50000:
             return conn.recv(length)
         else:
             msg = "".encode()
-            while length > 10000:
+            while length > 50000:
                 # print("received %d bytes of %d bytes" % (received_len, recv_len))
-                msg  += conn.recv(10000)
-                length -= 10000
+                msg  += conn.recv(50000)
+                length -= 50000
             msg += conn.recv(length)
 
             return msg

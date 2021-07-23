@@ -23,14 +23,14 @@ class ClientNet():
         self.sock.connect(self.server_addr)
 
     def recv(self, length):
-        if length <= 10000:
+        if length <= 50000:
             return self.sock.recv(length)
         else:
             msg = "".encode()
-            while length > 10000:
+            while length > 50000:
                 # print("received %d bytes of %d bytes" % (received_len, recv_len))
-                msg  += self.sock.recv(10000)
-                length -= 10000
+                msg  += self.sock.recv(50000)
+                length -= 50000
             msg += self.sock.recv(length)
 
             return msg
@@ -49,6 +49,7 @@ class Client():
             model: nn.Module=None,
             loss_fn = nn.CrossEntropyLoss(),
             optimizer: Optimizer=None,
+            epoch_num: int=1,
             device: str="cpu"
             ):
         if dataloader == None:
@@ -63,6 +64,7 @@ class Client():
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer=optimizer
+        self.epoch_num = epoch_num
         self.device = device
         self.model.to(self.device)
         self.model_state_dict = self.model.state_dict()
@@ -86,16 +88,17 @@ class Client():
         self.model.to(self.device)
 
     def train_model(self):
-        # print(len(dataloader_list[j]))
-        for batch, (X, y) in enumerate(self.dataloader):
-            # Compute prediction and loss
-            pred = self.model(X.cuda())
-            loss = self.loss_fn(pred, y.cuda())
-            
-            # Backpropagation
-            self.optimizer.zero_grad()
-            loss.backward()
-            self.optimizer.step()
+        for i in range(self.epoch_num):
+            # print(len(dataloader_list[j]))
+            for batch, (X, y) in enumerate(self.dataloader):
+                # Compute prediction and loss
+                pred = self.model(X.cuda())
+                loss = self.loss_fn(pred, y.cuda())
+                
+                # Backpropagation
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
 
     def upload_model(self):
         # upload model

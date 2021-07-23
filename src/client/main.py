@@ -23,7 +23,8 @@ if __name__ == "__main__":
     client_num: int = int(sys.argv[2])
     data_num_per_client: int = int(sys.argv[3])
     g_epoch_num: int = int(sys.argv[4])
-    task = sys.argv[5]
+    local_epoch_num: int = int(sys.argv[5])
+    task = sys.argv[6]
     # batch_size = int(sys.argv[5])
     # data_path = sys.argv[6]
     # server_ip = sys.argv[7]
