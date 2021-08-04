@@ -12,6 +12,7 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 
 
+
 class ClientNet():
     def __init__(self, server_addr: tuple):
         self.server_addr = server_addr
@@ -45,11 +46,12 @@ class ClientNet():
 class Client():
     def __init__(self, 
             server_addr: tuple=("127.0.0.1", 5000),
+            task: str="FashionMNIST",
             dataloader: DataLoader=None,
             model: nn.Module=None,
-            loss_fn = nn.CrossEntropyLoss(),
+            loss_fn = None,
             optimizer: Optimizer=None,
-            epoch_num: int=1,
+            epoch_num: int=5,
             device: str="cpu"
             ):
         if dataloader == None:
@@ -60,6 +62,7 @@ class Client():
             raise "Invalid optimizer."
 
         self.net = ClientNet(server_addr)
+        self.task = task
         self.dataloader = dataloader
         self.model = model
         self.loss_fn = loss_fn
@@ -90,15 +93,11 @@ class Client():
     def train_model(self):
         for i in range(self.epoch_num):
             # print(len(dataloader_list[j]))
-            for batch, (X, y) in enumerate(self.dataloader):
-                # Compute prediction and loss
-                pred = self.model(X.cuda())
-                loss = self.loss_fn(pred, y.cuda())
-                
-                # Backpropagation
-                self.optimizer.zero_grad()
-                loss.backward()
-                self.optimizer.step()
+            if self.task == "FashionMNIST":
+                self.train_FashionMNIST()
+            elif self.task == "SpeechCommand":
+                self.train_SpeechCommand()
+        
 
     def upload_model(self):
         # upload model
@@ -108,4 +107,31 @@ class Client():
         # self.net.send(len(state_bytes).to_bytes(4, 'big'))
         self.net.send(state_bytes)
 
+    def train_FashionMNIST(self):
+        for batch, (X, y) in enumerate(self.dataloader):
+            # Compute prediction and loss
+            pred = self.model(X.cuda())
+            loss = self.loss_fn(pred, y.cuda())
+            
+            # Backpropagation
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+    def train_SpeechCommand(self):
+        self.model.train()
+        for batch_idx, (data, target) in enumerate(self.dataloader):
+            data = data.to(self.device)
+            target = target.to(self.device)
+
+            # apply transform and model on whole batch directly on device
+            data = self.model.transform(data)
+            output = self.model(data)
+
+            # negative log-likelihood for a tensor of size (batch x 1 x n_output)
+            loss = self.loss_fn(output.squeeze(), target)
+
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
         

@@ -32,23 +32,13 @@ def test_loop(dataloader, model, loss_fn):
 
 if __name__ == "__main__":
 
-    dataset_ratio = 4
+    dataset_ratio = 0.5
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    test_dataset = datasets.FashionMNIST(
-        root="~/fledge/data",
-        train=False,
-        download=True,
-        transform=ToTensor()
-        )
+    test_dataset = SubsetSC("testing")
     test_dataloader = DataLoader(test_dataset, batch_size=64)
-    train_dataset = datasets.FashionMNIST(
-        root="~/fledge/data",
-        train=True,
-        download=True,
-        transform=ToTensor()
-        )
-    data_num = len(train_dataset)//dataset_ratio
+    train_dataset = SubsetSC("training")
+    data_num = len(train_dataset)*dataset_ratio
     subset = random_split(train_dataset, [data_num, len(train_dataset)-data_num])[0]
     print("training dataset size: %d" % len(subset))
     train_dataloader = DataLoader(subset, batch_size=32)
