@@ -110,7 +110,7 @@ class M5(nn.Module):
     #     self.pool2 = nn.MaxPool1d(4)
     #     self.conv3 = nn.Conv1d(n_channel, 2 * n_channel, kernel_size=3)
     #     self.bn3 = nn.BatchNorm1d(2 * n_channel)
-        # self.pool3 = nn.MaxPool1d(4)
+    #     self.pool3 = nn.MaxPool1d(4)
     #     self.conv4 = nn.Conv1d(2 * n_channel, 2 * n_channel, kernel_size=3)
     #     self.bn4 = nn.BatchNorm1d(2 * n_channel)
     #     self.pool4 = nn.MaxPool1d(4)
