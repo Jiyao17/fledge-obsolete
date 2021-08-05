@@ -40,6 +40,7 @@ do
 
         wait $server_pid
         wait $clients_pid
+        echo "" >> $result_file
     done
 
     echo "" >> $result_file

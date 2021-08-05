@@ -87,3 +87,21 @@ lr_local=0.01 client_num=12 data_per_client=5000 global_epoch_num=100 local_epoc
 lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
 
 lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+84.0% 86.7% 86.5% 87.2% 86.8% 86.5% 86.6% 86.9% 87.0% 87.1% 
+74.3% 74.8% 75.2% 74.9% 82.3% 86.6% 86.5% 87.0% 86.8% 86.7% 
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+52.7% 55.5% 57.1% 58.5% 67.3% 68.1% 68.2% 68.1% 67.1% 67.8% 
+
+70.8% 74.4% 79.6% 81.5% 80.9% 82.9% 82.4% 82.9% 82.2% 82.7% 

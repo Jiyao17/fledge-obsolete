@@ -29,7 +29,7 @@ def test_MNIST(dataloader, model, loss_fn, device):
     return correct
 
 
-def test_audio(dataloader, model, epoch, device):
+def test_audio(dataloader, model, device):
     model.eval()
     correct = 0
     for data, target in dataloader:
@@ -42,8 +42,8 @@ def test_audio(dataloader, model, epoch, device):
         pred = get_likely_index(output)
         correct += number_of_correct(pred, target)
 
-    print(f"\nTest Epoch: {epoch}\tAccuracy: {correct}/{len(dataloader.dataset)} ({100. * correct / len(dataloader.dataset):.0f}%)\n")
-
+    print(f"Accuracy: {correct}/{len(dataloader.dataset)} ({100. * correct / len(dataloader.dataset):.0f}%)\n")
+    return correct / len(dataloader.dataset)
 
 if __name__ == "__main__":
     client_num: int = int(sys.argv[1])
@@ -60,7 +60,7 @@ if __name__ == "__main__":
             download=True,
             transform=ToTensor()
             )
-        test_dataloader = DataLoader(test_dataset, batch_size=64)
+        test_dataloader = DataLoader(test_dataset, batch_size=64, drop_last=True)
         model = FashionMNIST_CNN()
     elif task == "SpeechCommand":
         test_dataset = SubsetSC("testing")
@@ -75,7 +75,7 @@ if __name__ == "__main__":
             test_dataset,
             batch_size=64,
             shuffle=False,
-            drop_last=False,
+            drop_last=True,
             collate_fn=collate_fn,
             num_workers=num_workers,
             pin_memory=pin_memory,
@@ -114,10 +114,14 @@ if __name__ == "__main__":
         
         server.aggregate_model()
         # print("Testing new model......")
-        correct = test_MNIST(test_dataloader, server.model, torch.nn.CrossEntropyLoss())
+
+        if task == "FashionMNIST":
+            rate = test_MNIST(test_dataloader, server.model, torch.nn.CrossEntropyLoss(), device)
+        elif task == "SpeechCommand":
+            rate = test_audio(test_dataloader, server.model, device)
 
         if i % 10 == 9:
-            f.write(f"{(100*correct):>0.1f}% ")
+            f.write(f"{(100*rate):>0.1f}% ")
 
     # f.write("\n")
     f.close()

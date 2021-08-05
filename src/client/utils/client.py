@@ -74,7 +74,7 @@ class Client():
         self.model.to(self.device)
         self.model_state_dict = self.model.state_dict()
         self.model_len = len(pickle.dumps(self.model_state_dict))
-        # print("self.model len: %d" % self.model_len)
+        print("client self.model len: %d" % self.model_len)
 
     def init(self):
         self.net.connect_to_server()

@@ -116,9 +116,8 @@ if __name__ == "__main__":
             optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
             scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)  # reduce the learning after 20 epochs by a factor of 10
 
-        model_len = len(pickle.dumps(model.state_dict()))
-        print("raw model len: %d" % model_len)
-
+        # model_len = len(pickle.dumps(model.state_dict()))
+        # print("raw model len: %d" % model_len)
         client = Client(
             task=task,
             dataloader=dataloader,

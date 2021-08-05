@@ -122,7 +122,7 @@ class Server():
         # print("self.model len in cuda: %d" % self.model_len)
         self.model_state_dict = self.model.state_dict()
         self.model_len = len(pickle.dumps(self.model_state_dict))
-        # print("model len: %d" % self.model_len)
+        print("server self.model len: %d" % self.model_len)
 
         # init net functions
         if self.single:
