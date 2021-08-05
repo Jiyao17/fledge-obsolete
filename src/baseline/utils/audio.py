@@ -6,8 +6,8 @@ from torchaudio.datasets import SPEECHCOMMANDS
 import torch
 
 class SubsetSC(SPEECHCOMMANDS):
-    def __init__(self, subset: str = None, data_path: str = "~/fledge/data/"):
-        super().__init__(data_path, download=True)
+    def __init__(self, subset: str = None, data_path: str = "/home/jiyaoliu17/fledge/data/"):
+        super().__init__(root=data_path, download=True)
 
         def load_list(filename):
             filepath = os.path.join(self._path, filename)

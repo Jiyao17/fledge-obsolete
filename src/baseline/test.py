@@ -33,11 +33,15 @@ def test_loop(dataloader, model, loss_fn):
 if __name__ == "__main__":
 
     dataset_ratio = 0.5
+    # ./test.sh 5 100 5 0.01 5000 FashionMNIST
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_dataset = SubsetSC("testing")
+    print("test set length: %d" % len(test_dataset))
     test_dataloader = DataLoader(test_dataset, batch_size=64)
     train_dataset = SubsetSC("training")
+    print("train set length: %d" % len(train_dataset))
+    
     data_num = len(train_dataset)*dataset_ratio
     subset = random_split(train_dataset, [data_num, len(train_dataset)-data_num])[0]
     print("training dataset size: %d" % len(subset))

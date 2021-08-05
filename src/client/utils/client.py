@@ -3,7 +3,7 @@ import socket
 import json
 import pickle
 from numpy.core.records import array
-
+from torch.optim.lr_scheduler import StepLR
 from torch import nn
 from torch.optim import Optimizer
 from torch.nn.modules import loss
@@ -51,6 +51,7 @@ class Client():
             model: nn.Module=None,
             loss_fn = None,
             optimizer: Optimizer=None,
+            scheduler: StepLR=None,
             epoch_num: int=5,
             device: str="cpu"
             ):
@@ -67,6 +68,7 @@ class Client():
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer=optimizer
+        self.scheduler=scheduler
         self.epoch_num = epoch_num
         self.device = device
         self.model.to(self.device)
@@ -97,7 +99,7 @@ class Client():
                 self.train_FashionMNIST()
             elif self.task == "SpeechCommand":
                 self.train_SpeechCommand()
-        
+                self.scheduler.step()
 
     def upload_model(self):
         # upload model

@@ -13,7 +13,6 @@ from torchvision.transforms import ToTensor
 import torchaudio
 
 import torch.nn.functional as F
-from baseline.main import EPOCH_NUM
 
 from utils.client import Client
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
@@ -44,7 +43,7 @@ if __name__ == "__main__":
     data_path = "~/fledge/data"
     server_ip = "127.0.0.1"
     server_port = 5000
-    device = "cuda"    # training device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     train_dataset: Dataset = None
     model: nn.Module = None
@@ -80,7 +79,6 @@ if __name__ == "__main__":
     else:
         raise "Task not supported yet."
 
-
     dataset_size = len(train_dataset)
     client_list: List[Client] = []
 
@@ -102,6 +100,7 @@ if __name__ == "__main__":
             dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True, drop_last=True)
             loss_fn = CrossEntropyLoss()
             optimizer = optim.SGD(model.parameters(), lr=lr)
+            scheduler = None
         elif task == "SpeechCommand":
             dataloader = DataLoader(
                 subset_list[i],
@@ -117,7 +116,6 @@ if __name__ == "__main__":
             optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
             scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)  # reduce the learning after 20 epochs by a factor of 10
 
-
         model_len = len(pickle.dumps(model.state_dict()))
         print("raw model len: %d" % model_len)
 
@@ -127,6 +125,7 @@ if __name__ == "__main__":
             model=model,
             loss_fn=loss_fn,
             optimizer=optimizer,
+            scheduler=scheduler,
             epoch_num=local_epoch_num,
             device=device
             )

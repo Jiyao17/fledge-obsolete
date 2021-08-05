@@ -83,3 +83,7 @@ lr_local=0.01 client_num=12 data_per_client=5000 global_epoch_num=100 local_epoc
 74.2% 77.8% 79.0% 79.3% 80.0% 89.5% 89.2% 89.6% 90.2% 90.0%
 78.9% 82.4% 87.2% 88.1% 88.9% 89.1% 89.1% 89.5% 90.2% 90.0%
 66.1% 68.8% 69.1% 69.9% 70.5% 70.7% 70.9% 71.3% 71.2% 71.3%
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
