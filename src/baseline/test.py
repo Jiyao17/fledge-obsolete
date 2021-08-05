@@ -1,10 +1,12 @@
 
 import torch
-from torch import optim
+from torch import optim, Tensor, nn
 from torch.nn.modules.loss import CrossEntropyLoss
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets
 from torchvision.transforms import ToTensor
+
+import torchaudio
 
 # federated tools
 from utils.model import FashionMNIST_CNN
@@ -34,6 +36,37 @@ if __name__ == "__main__":
 
     dataset_ratio = 0.5
     # ./test.sh 5 100 5 0.01 5000 FashionMNIST
+    
+    x = Tensor([[1 for i in range(8000)]])
+    # torch.reshape(x, (1, 8000))
+    print(x.shape)
+    
+    b = Tensor([[[1 for i in range(8000)]] for i in range(64)])
+    print(b.shape)
+
+    net = nn.Conv1d(1, 32, kernel_size=80, stride=16)
+    b = net(b)
+    print(b.shape)
+
+    net = nn.MaxPool1d(kernel_size=17, stride=1)
+    b = net(b)
+    print(b.shape)
+
+    net = nn.Conv1d(32, 2 * 32, kernel_size=16, stride=16)
+    b = net(b)
+    print(b.shape)
+
+    net = nn.MaxPool1d(kernel_size=5, stride=1)
+    b = net(b)
+    print(b.shape)
+
+    net = nn.Linear(64*26, 256)
+    b = net(b[0])
+    print(b.shape)
+
+
+
+
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_dataset = SubsetSC("testing")
@@ -41,6 +74,16 @@ if __name__ == "__main__":
     test_dataloader = DataLoader(test_dataset, batch_size=64)
     train_dataset = SubsetSC("training")
     print("train set length: %d" % len(train_dataset))
+    waveform, sample_rate, label, speaker_id, utterance_number = train_dataset[0]
+    labels = sorted(list(set(datapoint[2] for datapoint in train_dataset)))
+    new_sample_rate = 8000
+    transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
+    transformed = transform(waveform)
+    n_input=transformed.shape[0]
+    print(transformed.shape)
+    # print("input len: %d" % n_input)
+    # print("output len: %d" % n_input)
+
     
     data_num = len(train_dataset)*dataset_ratio
     subset = random_split(train_dataset, [data_num, len(train_dataset)-data_num])[0]
