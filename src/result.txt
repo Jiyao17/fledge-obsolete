@@ -105,3 +105,45 @@ lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch
 52.7% 55.5% 57.1% 58.5% 67.3% 68.1% 68.2% 68.1% 67.1% 67.8% 
 
 70.8% 74.4% 79.6% 81.5% 80.9% 82.9% 82.4% 82.9% 82.2% 82.7% 
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=1000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand

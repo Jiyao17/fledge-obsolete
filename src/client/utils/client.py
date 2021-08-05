@@ -17,24 +17,30 @@ class ClientNet():
     def __init__(self, server_addr: tuple):
         self.server_addr = server_addr
         
-        self.send_flag = 0
+        self.sock = None
     
     def connect_to_server(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect(self.server_addr)
 
     def recv(self, length):
-        if length <= 50000:
-            return self.sock.recv(length)
-        else:
-            msg = "".encode()
-            while length > 50000:
-                # print("received %d bytes of %d bytes" % (received_len, recv_len))
-                msg  += self.sock.recv(50000)
-                length -= 50000
-            msg += self.sock.recv(length)
+        msg = "".encode()
+        while len(msg) < length:
+            msg += self.sock.recv(length - len(msg))
 
-            return msg
+        return msg
+        
+        # if length <= 50000:
+        #     return self.sock.recv(length)
+        # else:
+        #     msg = "".encode()
+        #     while length > 50000:
+        #         # print("received %d bytes of %d bytes" % (received_len, recv_len))
+        #         msg  += self.sock.recv(50000)
+        #         length -= 50000
+        #     msg += self.sock.recv(length)
+
+        #     return msg
 
     def send(self, data):
         sent_len = 0
@@ -52,6 +58,7 @@ class Client():
             loss_fn = None,
             optimizer: Optimizer=None,
             scheduler: StepLR=None,
+            transform = None,
             epoch_num: int=5,
             device: str="cpu"
             ):
@@ -69,6 +76,7 @@ class Client():
         self.loss_fn = loss_fn
         self.optimizer=optimizer
         self.scheduler=scheduler
+        self.transform=transform
         self.epoch_num = epoch_num
         self.device = device
         self.model.to(self.device)
@@ -85,6 +93,7 @@ class Client():
         # sd_len = net_list[j].recv(4)
         # sd_len = self.net.recv(4)
         # print("download model len: %d" % int.from_bytes(sd_len, 'big'))
+        # print("download model len: %d" % self.model_len)
         state_bytes = self.net.recv(self.model_len)
         # print("Model downloaded.")
         state_dict = pickle.loads(state_bytes)
@@ -127,7 +136,7 @@ class Client():
             target = target.to(self.device)
 
             # apply transform and model on whole batch directly on device
-            data = self.model.transform(data)
+            data = self.transform(data)
             output = self.model(data)
 
             # negative log-likelihood for a tensor of size (batch x 1 x n_output)

@@ -8,6 +8,7 @@ import socket
 
 from typing import List, Dict
 
+from utils.audio import count_parameters
 
 class ServerNet():
     def __init__(self, single=True, client_num=3,
@@ -83,17 +84,23 @@ class ServerNet():
 
     @staticmethod
     def recv(conn: socket.socket, length):
-        if length <= 50000:
-            return conn.recv(length)
-        else:
-            msg = "".encode()
-            while length > 50000:
-                # print("received %d bytes of %d bytes" % (received_len, recv_len))
-                msg  += conn.recv(50000)
-                length -= 50000
-            msg += conn.recv(length)
+        msg = "".encode()
+        while len(msg) < length:
+            msg += conn.recv(length - len(msg))
 
-            return msg
+        return msg
+
+        # if length <= 50000:
+        #     return conn.recv(length)
+        # else:
+        #     msg = "".encode()
+        #     while length > 50000:
+        #         # print("received %d bytes of %d bytes" % (received_len, recv_len))
+        #         msg  += conn.recv(50000)
+        #         length -= 50000
+        #     msg += conn.recv(length)
+
+        #     return msg
 
     @staticmethod
     def send(conn: socket.socket, data):
@@ -133,7 +140,7 @@ class Server():
     
     def init_server_net(self):
         """
-        not used or tested yet
+        not used nor tested yet
         """
         self.net.init_net()
         self.net.connect_servers()
@@ -147,6 +154,7 @@ class Server():
         Send global model to clients.
         """
         state_bytes = pickle.dumps(self.model_state_dict)
+        # print("length of model to distribute: %d" % len(state_bytes))
         for conn in self.net.client_conn_list:
             # msg_len = len(state_bytes)
             # b = len(state_bytes).to_bytes(4, 'big')            
@@ -154,7 +162,8 @@ class Server():
             # print(len(b))
             # print(int.from_bytes(b, "big"))
             # conn.send(len(state_bytes).to_bytes(4, 'big'))
-            conn.send(state_bytes)
+            ServerNet.send(conn, state_bytes)
+            # conn.send(state_bytes)
 
     def aggregate_model(self):
         """
@@ -178,9 +187,10 @@ class Server():
             state_dict_avg[key] = torch.div(state_dict_avg[key], len(state_dict_list))
         
         # load average model
-        self.model_state_dict = state_dict_avg
-        self.model.load_state_dict(self.model_state_dict)
+        self.model.load_state_dict(state_dict_avg)
         self.model.to(self.device)
+        self.model_state_dict = self.model.state_dict()
+        # print("model len after aggregation: %d" % len(pickle.dumps(self.model.state_dict())))
 
 
 class SServer(Server):

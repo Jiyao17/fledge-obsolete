@@ -5,6 +5,7 @@ import os
 from torchaudio.datasets import SPEECHCOMMANDS
 import torch
 
+
 class SubsetSC(SPEECHCOMMANDS):
     def __init__(self, subset: str = None, data_path: str = "/home/jiyaoliu17/fledge/data/"):
         super().__init__(root=data_path, download=True)
@@ -23,15 +24,18 @@ class SubsetSC(SPEECHCOMMANDS):
             excludes = set(excludes)
             self._walker = [w for w in self._walker if w not in excludes]
 
-def label_to_index(labels, word):
+def set_LABELS(labels):
+    global LABELS
+    LABELS = labels
+
+def label_to_index(word):
     # Return the position of the word in labels
-    return torch.tensor(labels.index(word))
+    return torch.tensor(LABELS.index(word))
 
-
-def index_to_label(labels, index):
+def index_to_label(index):
     # Return the word corresponding to the index in labels
     # This is the inverse of label_to_index
-    return labels[index]
+    return LABELS[index]
 
 def pad_sequence(batch):
     # Make all tensor in a batch the same length by padding with zeros

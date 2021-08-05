@@ -6,11 +6,12 @@ import torch.optim as optim
 import torchaudio
 import sys
 
-from utils.audio import SubsetSC, collate_fn
+from utils.audio import SubsetSC, collate_fn, set_LABELS
 
 from torchaudio.datasets import SPEECHCOMMANDS
 import os
 
+import pickle
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -20,6 +21,7 @@ test_set = SubsetSC("testing")
 
 waveform, sample_rate, label, speaker_id, utterance_number = train_set[0]
 labels = sorted(list(set(datapoint[2] for datapoint in train_set)))
+set_LABELS(labels)
 # labels
 
 new_sample_rate = 8000
@@ -168,7 +170,7 @@ def test(model, epoch):
         correct += number_of_correct(pred, target)
 
         # update progress bar
-        pbar.update(pbar_update)
+        # pbar.update(pbar_update)
 
     print(f"\nTest Epoch: {epoch}\tAccuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)\n")
 
@@ -183,6 +185,8 @@ transform = transform.to(device)
 for epoch in range(1, n_epoch + 1):
     train(model, epoch, log_interval)
     test(model, epoch)
+    state_dict_byte = pickle.dumps(model.state_dict())
+    print("model len: %d" % len(state_dict_byte))
     scheduler.step()
 
 # Let's plot the training loss versus the number of iteration.

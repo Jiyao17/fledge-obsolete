@@ -16,7 +16,7 @@ import torch.nn.functional as F
 
 from utils.client import Client
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
-from utils.audio import SubsetSC, collate_fn
+from utils.audio import SubsetSC, collate_fn, set_LABELS
 
 
 batch_size=32
@@ -59,6 +59,7 @@ if __name__ == "__main__":
         train_dataset = SubsetSC("training")
         waveform, sample_rate, label, speaker_id, utterance_number = train_dataset[0]
         labels = sorted(list(set(datapoint[2] for datapoint in train_dataset)))
+        set_LABELS(labels)
         new_sample_rate = 8000
         transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
         transformed = transform(waveform)
@@ -72,8 +73,7 @@ if __name__ == "__main__":
     
         model = SpeechCommand_M5(
             n_input=transformed.shape[0],
-            n_output=len(labels),
-            transform=transform
+            n_output=len(labels)
             )
 
     else:
@@ -125,6 +125,7 @@ if __name__ == "__main__":
             loss_fn=loss_fn,
             optimizer=optimizer,
             scheduler=scheduler,
+            transform=transform,
             epoch_num=local_epoch_num,
             device=device
             )

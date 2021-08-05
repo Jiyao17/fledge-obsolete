@@ -11,7 +11,7 @@ import torchaudio
 # federated tools
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 from utils.server import Server
-from utils.audio import SubsetSC, collate_fn, number_of_correct, get_likely_index
+from utils.audio import SubsetSC, collate_fn, number_of_correct, get_likely_index, set_LABELS, count_parameters
 
 def test_MNIST(dataloader, model, loss_fn, device):
     size = len(dataloader.dataset)
@@ -29,14 +29,14 @@ def test_MNIST(dataloader, model, loss_fn, device):
     return correct
 
 
-def test_audio(dataloader, model, device):
+def test_audio(dataloader, model, transform, device):
     model.eval()
     correct = 0
     for data, target in dataloader:
         data = data.to(device)
         target = target.to(device)
         # apply transform and model on whole batch directly on device
-        data = model.transform(data)
+        data = transform(data)
         output = model(data)
 
         pred = get_likely_index(output)
@@ -83,22 +83,22 @@ if __name__ == "__main__":
 
         waveform, sample_rate, label, speaker_id, utterance_number = test_dataset[0]
         labels = sorted(list(set(datapoint[2] for datapoint in test_dataset)))
+        set_LABELS(labels)
         new_sample_rate = 8000
         transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
         transformed = transform(waveform)
         model = SpeechCommand_M5(
             n_input=transformed.shape[0],
-            n_output=len(labels),
-            transform=transform
+            n_output=len(labels)
             )
     else:
         raise "Task not supported yet."
     
-    model_len = len(pickle.dumps(model.state_dict()))
-    print("raw model len: %d" % model_len)
+    # model_len = len(pickle.dumps(model.state_dict()))
+    # print("raw model len: %d" % model_len)
 
     # config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
-    server = Server(client_num=client_num, model=model, device="cuda")
+    server = Server(client_num=client_num, model=model, device=device)
     print("Server initialized")
     server.init_client_net()
     print("Clients connected")
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         if task == "FashionMNIST":
             rate = test_MNIST(test_dataloader, server.model, torch.nn.CrossEntropyLoss(), device)
         elif task == "SpeechCommand":
-            rate = test_audio(test_dataloader, server.model, device)
+            rate = test_audio(test_dataloader, server.model, transform, device)
 
         if i % 10 == 9:
             f.write(f"{(100*rate):>0.1f}% ")

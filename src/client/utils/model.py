@@ -29,10 +29,9 @@ class FashionMNIST_CNN(nn.Module):
 
 
 class SpeechCommand_M5(nn.Module):
-    def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32, transform=None):
+    def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
         super().__init__()
 
-        self.transform = transform
 
         self.conv1 = nn.Conv1d(n_input, n_channel, kernel_size=80, stride=stride)
         self.bn1 = nn.BatchNorm1d(n_channel)
