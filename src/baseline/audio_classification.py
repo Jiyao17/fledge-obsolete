@@ -8,6 +8,7 @@ import sys
 
 from utils.audio import SubsetSC, collate_fn, set_LABELS
 
+from torch.utils.data import random_split
 from torchaudio.datasets import SPEECHCOMMANDS
 import os
 
@@ -17,7 +18,12 @@ import pickle
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Create training and testing split of the data. We do not use validation in this tutorial.
 train_set = SubsetSC("training")
+data_num = 15000
+train_subset = random_split(train_set, [data_num, len(train_set)-data_num])[0]
+train_set = train_subset
 test_set = SubsetSC("testing")
+
+print("datasets ready...")
 
 waveform, sample_rate, label, speaker_id, utterance_number = train_set[0]
 labels = sorted(list(set(datapoint[2] for datapoint in train_set)))
@@ -44,6 +50,8 @@ else:
     num_workers = 0
     pin_memory = False
 
+print("setting dataloaders...")
+
 train_loader = torch.utils.data.DataLoader(
     train_set,
     batch_size=batch_size,
@@ -62,6 +70,7 @@ test_loader = torch.utils.data.DataLoader(
     pin_memory=pin_memory,
 )
 
+print("dataloader ready...")
 
 class M5(nn.Module):
     def __init__(self, n_input=1, n_output=35, stride=16, n_channel=32):
@@ -76,26 +85,24 @@ class M5(nn.Module):
             nn.MaxPool1d(kernel_size=4, stride=1),
             # 32*493
 
-            nn.Conv1d(n_channel, n_channel, kernel_size=3),
-            # 32*491
-            nn.BatchNorm1d(n_channel),
+            nn.Conv1d(n_channel, n_channel//2, kernel_size=3),
+            # 16*491
+            nn.BatchNorm1d(n_channel//2),
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=4, stride=1),
-            # 32*487
+            # 16*488
 
-            nn.Conv1d(n_channel, 2*n_channel, kernel_size=3),
-            # 64*486
-            nn.BatchNorm1d(2*n_channel),
+            nn.Conv1d(n_channel//2, n_channel//2, kernel_size=3),
+            # 16*486
+            nn.BatchNorm1d(n_channel//2),
             nn.ReLU(),
             nn.MaxPool1d(kernel_size=4, stride=1),
-            # 64*483
+            # 16*483
 
             nn.Flatten(),
 
-            nn.Linear(64*483, 512),
-            nn.ReLU(),
+            nn.Linear(16*483, 512),
             nn.Linear(512, n_output),
-            nn.ReLU(),
             nn.LogSoftmax(dim=1)
         )
 
@@ -179,7 +186,6 @@ def train(model, epoch, log_interval):
         # losses.append(loss.item())
 
 
-
 def number_of_correct(pred, target):
     # count number of correct predictions
     return pred.squeeze().eq(target).sum().item()
@@ -211,11 +217,10 @@ def test(model, epoch):
     print(f"\nTest Epoch: {epoch}\tAccuracy: {correct}/{len(test_loader.dataset)} ({100. * correct / len(test_loader.dataset):.0f}%)\n")
 
 log_interval = 20
-n_epoch = 10
+n_epoch = 100
 
-pbar_update = 1 / (len(train_loader) + len(test_loader))
 losses = []
-
+print("ready to go!")
 # The transform needs to live on the same device as the model and the data.
 transform = transform.to(device)
 for epoch in range(1, n_epoch + 1):

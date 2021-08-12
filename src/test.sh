@@ -5,7 +5,7 @@ local_epoch_num=$3
 lr_base=$4
 data_per_client=$5
 task=$6
-client_nums=( 3 6 9 12 )
+client_nums=( 3 )
 result_file="result.txt"
 
 

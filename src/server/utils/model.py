@@ -37,27 +37,30 @@ class SpeechCommand_M5(nn.Module):
             # 32*496
             nn.BatchNorm1d(n_channel),
             nn.ReLU(),
-            nn.MaxPool1d(kernel_size=17, stride=1),
-            # 32*480
-            nn.Conv1d(n_channel, 2*n_channel, kernel_size=3),
-            # 64*478
-            nn.BatchNorm1d(n_channel),
-            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=4, stride=1),
+            # 32*493
 
-            nn.Conv1d(n_channel, 2*n_channel, kernel_size=3),
-            # 64*478
-            nn.BatchNorm1d(n_channel),
+            nn.Conv1d(n_channel, n_channel//2, kernel_size=3),
+            # 16*491
+            nn.BatchNorm1d(n_channel//2),
             nn.ReLU(),
+            nn.MaxPool1d(kernel_size=4, stride=1),
+            # 16*488
 
-            nn.AvgPool1d(kernel_size=5, stride=1),
-            # 16 26
+            nn.Conv1d(n_channel//2, n_channel//2, kernel_size=3),
+            # 16*486
+            nn.BatchNorm1d(n_channel//2),
+            nn.ReLU(),
+            nn.MaxPool1d(kernel_size=4, stride=1),
+            # 16*483
 
             nn.Flatten(),
 
-            nn.Linear(16*26, n_output),
-            nn.ReLU(),
-            nn.Softmax()
+            nn.Linear(16*483, 512),
+            nn.Linear(512, n_output),
+            nn.LogSoftmax(dim=1)
         )
+
 
     def forward(self, x):
         x = self.net(x)
