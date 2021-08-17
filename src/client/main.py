@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # data_num_per_client = 5000
     # g_epoch_num = 50
     batch_size = 64
-    data_path = "~/fledge/data"
+    data_path = "~/projects/fledge/data/"
     server_ip = "127.0.0.1"
     server_port = 5000
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
