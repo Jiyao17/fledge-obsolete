@@ -32,7 +32,7 @@ def test_loop(dataloader, model, loss_fn):
 
 if __name__ == "__main__":
 
-    dataset_ratio = 4
+    dataset_ratio = 1
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     test_dataset = datasets.FashionMNIST(

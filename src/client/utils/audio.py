@@ -7,7 +7,7 @@ import torch
 
 
 class SubsetSC(SPEECHCOMMANDS):
-    def __init__(self, subset: str = None, data_path: str = "/home/jiyaoliu17/fledge/data/"):
+    def __init__(self, subset: str = None, data_path: str = "/home/tuo28237/projects/fledge/data/"):
         super().__init__(root=data_path, download=True)
 
         def load_list(filename):

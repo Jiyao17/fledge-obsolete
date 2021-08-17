@@ -204,3 +204,27 @@ lr_local=0.01 client_num=3 data_per_client=20000 global_epoch_num=100 local_epoc
 lr_local=0.01 client_num=3 data_per_client=20000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
 
 lr_local=0.01 client_num=3 data_per_client=20000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=FashionMNIST
+
+lr_local=0.01 client_num=3 data_per_client=10000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand

@@ -47,6 +47,7 @@ if __name__ == "__main__":
 
     train_dataset: Dataset = None
     model: nn.Module = None
+    transform = None
     if task == "FashionMNIST":
         train_dataset = datasets.FashionMNIST(
             root=data_path,
