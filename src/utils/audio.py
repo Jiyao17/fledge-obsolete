@@ -1,7 +1,6 @@
 
 import os
 
-
 from torchaudio.datasets import SPEECHCOMMANDS
 import torch
 
@@ -24,8 +23,6 @@ class SubsetSC(SPEECHCOMMANDS):
             excludes = set(excludes)
             self._walker = [w for w in self._walker if w not in excludes]
 
-
-
 def set_LABELS(labels):
     global LABELS
     LABELS = labels
@@ -39,14 +36,11 @@ def index_to_label(index):
     # This is the inverse of label_to_index
     return LABELS[index]
 
-
-
 def pad_sequence(batch):
     # Make all tensor in a batch the same length by padding with zeros
     batch = [item.t() for item in batch]
     batch = torch.nn.utils.rnn.pad_sequence(batch, batch_first=True, padding_value=0.)
     return batch.permute(0, 2, 1)
-
 
 def collate_fn(batch):
     # A data tuple has the form:
@@ -69,11 +63,9 @@ def number_of_correct(pred, target):
     # count number of correct predictions
     return pred.squeeze().eq(target).sum().item()
 
-
 def get_likely_index(tensor):
     # find most likely label index for each element in the batch
     return tensor.argmax(dim=-1)
-
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
