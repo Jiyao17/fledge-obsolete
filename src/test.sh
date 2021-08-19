@@ -5,7 +5,7 @@ local_epoch_num=$3
 lr_base=$4
 data_per_client=$5
 task=$6
-client_nums=( 3 )
+client_nums=( 3 6 9 12 )
 result_file="result.txt"
 
 
@@ -30,12 +30,12 @@ do
 
     for ((j=0; j<$run_num; j++))
     do
-        python ./server/main.py ${client_nums[$i]} $epoch_num $task &
+        CUDA_VISIBLE_DEVICES=2 python ./server/main.py ${client_nums[$i]} $epoch_num $task &
         server_pid=$!
 
         sleep 10
 
-        python ./client/main.py $lr_local ${client_nums[$i]} $data_per_client $epoch_num $local_epoch_num $task &
+        CUDA_VISIBLE_DEVICES=2 python ./client/main.py $lr_local ${client_nums[$i]} $data_per_client $epoch_num $local_epoch_num $task &
         clients_pid=$!
 
         wait $server_pid

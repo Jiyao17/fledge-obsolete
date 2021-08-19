@@ -9,7 +9,9 @@ from torchvision.transforms import ToTensor
 import torchaudio
 
 # federated tools
-# sys.path.append("~/projects/fledge/utils")
+# sys.path.append("..")
+# import os
+# os.system("pwd")
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 from utils.server import Server
 from utils.audio import SubsetSC, collate_fn, number_of_correct, get_likely_index, set_LABELS, count_parameters
@@ -25,7 +27,7 @@ def test_MNIST(dataloader, model, loss_fn, device):
             correct += (pred.argmax(1) == y.to(device)).type(torch.float).sum().item()
             
     correct /= size
-    print(f"Accuracy: {(100*correct):>0.1f}%\n")
+    print("Accuracy: %.1f\n" % 100*correct)
 
     return correct
 
@@ -41,8 +43,8 @@ def test_audio(dataloader, model, transform, device):
 
         pred = get_likely_index(output)
         correct += number_of_correct(pred, target)
-
-    print(f"Accuracy: {correct}/{len(dataloader.dataset)} ({100. * correct / len(dataloader.dataset):.0f}%)\n")
+    # {correct}/{len(dataloader.dataset)} 
+    print("Accuracy: %.1f%\n" % 100. * correct / len(dataloader.dataset))
     return correct / len(dataloader.dataset)
 
 if __name__ == "__main__":
@@ -55,7 +57,7 @@ if __name__ == "__main__":
 
     if task == "FashionMNIST":
         test_dataset = datasets.FashionMNIST(
-            root="~projects/fledge/data/",
+            root="~/projects/fledge/data/",
             train=False,
             download=True,
             transform=ToTensor()

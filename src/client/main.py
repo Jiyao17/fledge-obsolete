@@ -2,7 +2,6 @@
 
 from typing import List
 import sys
-import pickle
 
 import torch
 from torch import optim, nn
@@ -14,6 +13,7 @@ import torchaudio
 
 import torch.nn.functional as F
 
+# sys.path.append("..")
 from utils.client import Client
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 from utils.audio import SubsetSC, collate_fn, set_LABELS

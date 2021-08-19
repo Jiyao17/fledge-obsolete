@@ -6,6 +6,7 @@ import torch.optim as optim
 import torchaudio
 import sys
 
+sys.path.append("..")
 from utils.audio import SubsetSC, collate_fn, set_LABELS
 
 from torch.utils.data import random_split
