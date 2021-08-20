@@ -122,3 +122,51 @@ lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch
 
 lr_local=0.01 client_num=6 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
 
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+
+lr_local=0.01 client_num=3 data_per_client=5000 global_epoch_num=100 local_epoch_num=5 task=SpeechCommand
+

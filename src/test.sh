@@ -9,7 +9,7 @@ client_nums=( 3 6 9 12 )
 result_file="result.txt"
 
 
-source ~/fledge/python/bin/activate
+source ~/projects/fledge/python/bin/activate
 
 for ((i=0; i<${#client_nums[@]}; i++))
 do

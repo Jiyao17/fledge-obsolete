@@ -9,9 +9,7 @@ from torchvision.transforms import ToTensor
 import torchaudio
 
 # federated tools
-# sys.path.append("..")
-# import os
-# os.system("pwd")
+sys.path.append("./")
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 from utils.server import Server
 from utils.audio import SubsetSC, collate_fn, number_of_correct, get_likely_index, set_LABELS, count_parameters

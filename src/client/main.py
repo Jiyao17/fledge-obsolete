@@ -13,7 +13,7 @@ import torchaudio
 
 import torch.nn.functional as F
 
-# sys.path.append("..")
+sys.path.append("./")
 from utils.client import Client
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 from utils.audio import SubsetSC, collate_fn, set_LABELS
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     server_ip = "127.0.0.1"
     server_port = 5000
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    print(device)
     train_dataset: Dataset = None
     model: nn.Module = None
     transform = None

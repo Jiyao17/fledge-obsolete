@@ -99,7 +99,7 @@ class Client():
         state_dict = pickle.loads(state_bytes)
         # print("Loading model to GPU")
         self.model.load_state_dict(state_dict)
-        self.model.to(self.device)
+        self.model = self.model.to(self.device)
 
     def train_model(self):
         for i in range(self.epoch_num):
@@ -136,6 +136,7 @@ class Client():
             target = target.to(self.device)
 
             # apply transform and model on whole batch directly on device
+            self.transform = self.transform.to(self.device)
             data = self.transform(data)
             output = self.model(data)
 
