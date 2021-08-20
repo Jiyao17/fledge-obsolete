@@ -88,6 +88,7 @@ class ServerNet():
         while len(msg) < length:
             msg += conn.recv(length - len(msg))
 
+        print("server: recv msg len: %d" % len(msg))
         return msg
 
         # if length <= 50000:
@@ -109,6 +110,9 @@ class ServerNet():
 
         while sent_len < data_len:
             sent_len += conn.send(data[sent_len:])
+        
+        print("server: send msg len: %d" % len(data))
+
 
 class Server():
     def __init__(self,
@@ -120,16 +124,18 @@ class Server():
         self.single = single
         if model == None:
             raise "Invalid model."
-        self.model = model
+        self.model = model.to(device)
         # self.model_len = len(pickle.dumps(self.model.state_dict()))
         # print("self.model len in mem: %d" % self.model_len)
         self.device = device
-        self.model.to(self.device)
         # self.model_len = len(pickle.dumps(self.model.state_dict()))
         # print("self.model len in cuda: %d" % self.model_len)
         self.model_state_dict = self.model.state_dict()
         self.model_len = len(pickle.dumps(self.model_state_dict))
-        print("server self.model len: %d" % self.model_len)
+        raw_model_len = len(pickle.dumps(model.state_dict()))
+        print("client: raw model len: %d" % raw_model_len)
+
+        print("server: self.model len: %d" % self.model_len)
 
         # init net functions
         if self.single:
@@ -188,7 +194,7 @@ class Server():
         
         # load average model
         self.model.load_state_dict(state_dict_avg)
-        self.model.to(self.device)
+        self.model = self.model.to(self.device)
         self.model_state_dict = self.model.state_dict()
         # print("model len after aggregation: %d" % len(pickle.dumps(self.model.state_dict())))
 

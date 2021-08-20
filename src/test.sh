@@ -33,7 +33,7 @@ do
         CUDA_VISIBLE_DEVICES=2 python ./server/main.py ${client_nums[$i]} $epoch_num $task &
         server_pid=$!
 
-        sleep 10
+        sleep 5
 
         CUDA_VISIBLE_DEVICES=2 python ./client/main.py $lr_local ${client_nums[$i]} $data_per_client $epoch_num $local_epoch_num $task &
         clients_pid=$!

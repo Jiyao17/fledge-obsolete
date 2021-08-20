@@ -1,4 +1,5 @@
 
+from math import pi
 import socket
 import json
 import pickle
@@ -23,7 +24,7 @@ class ClientNet():
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect(self.server_addr)
 
-    def recv(self, length):
+    def recv(self, length: int):
         msg = "".encode()
         while len(msg) < length:
             msg += self.sock.recv(length - len(msg))
@@ -42,12 +43,33 @@ class ClientNet():
 
         #     return msg
 
-    def send(self, data):
+    def send(self, data: bytes):
         sent_len = 0
         data_len = len(data)
 
         while sent_len < data_len:
             sent_len += self.sock.send(data[sent_len:])
+
+        return sent_len
+        
+
+    def recv_model(self, model: nn.Module=None):
+        state_bytes_len_b = self.recv(4)
+        state_bytes_len = int.from_bytes(state_bytes_len_b, 'big')
+        # print("download model len: %d" % model_len)
+        state_bytes = self.recv(state_bytes_len)
+        print("client: recv model len: %d" % len(state_bytes))
+        return state_bytes
+
+    def send_model(self, model: nn.Module=None):
+        # upload model
+        state_dict = model.state_dict()
+        state_bytes = pickle.dumps(state_dict)
+        # print("uploading model with length: %d" % len(state_bytes))
+        state_bytes_len_b = len(state_bytes).to_bytes(4, 'big')
+        self.send(state_bytes_len_b)
+        sent_len = self.send(state_bytes)
+        print("client: send msg len: %d" % sent_len)
 
 class Client():
     def __init__(self, 
@@ -72,17 +94,18 @@ class Client():
         self.net = ClientNet(server_addr)
         self.task = task
         self.dataloader = dataloader
-        self.model = model
+        self.model = model.to(device)
         self.loss_fn = loss_fn
         self.optimizer=optimizer
         self.scheduler=scheduler
         self.transform=transform
         self.epoch_num = epoch_num
         self.device = device
-        self.model.to(self.device)
         self.model_state_dict = self.model.state_dict()
         self.model_len = len(pickle.dumps(self.model_state_dict))
-        print("client self.model len: %d" % self.model_len)
+        raw_model_len = len(pickle.dumps(model.state_dict()))
+        print("client: raw model len: %d" % raw_model_len)
+        print("client: self.model len: %d" % self.model_len)
 
     def init(self):
         self.net.connect_to_server()
@@ -136,7 +159,7 @@ class Client():
             target = target.to(self.device)
 
             # apply transform and model on whole batch directly on device
-            self.transform = self.transform.to(self.device)
+            # self.transform = self.transform.to(self.device)
             data = self.transform(data)
             output = self.model(data)
 

@@ -94,19 +94,19 @@ if __name__ == "__main__":
     else:
         raise "Task not supported yet."
     
-    # model_len = len(pickle.dumps(model.state_dict()))
-    # print("raw model len: %d" % model_len)
+    model_len = len(pickle.dumps(model.state_dict()))
+    print("server: raw model len on server: %d" % model_len)
 
     # config_file = "/home/jiyaoliu17/fledge/src/server/config.json"
     server = Server(client_num=client_num, model=model, device=device)
-    print("Server initialized")
+    print("server: Server initialized")
     server.init_client_net()
-    print("Clients connected")
+    print("server: Clients connected")
 
     f = open(result_dir, "a+")
     # f.write("\n")
     for i in range(EPOCH_NUM):
-        print("Epoch %d......" % i)
+        print("server: Epoch %d......" % i)
 
         # print("Sending model to clients......")
         server.distribute_model()

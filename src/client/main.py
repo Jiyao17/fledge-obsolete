@@ -2,6 +2,7 @@
 
 from typing import List
 import sys
+import pickle
 
 import torch
 from torch import optim, nn
@@ -93,9 +94,9 @@ if __name__ == "__main__":
 
     # clients initialization
     for i in range(client_num):
-        print("Loading data......")
+        print("client: Loading data......")
         # data_range = [j for j in range(dataset_size//client_num *i, dataset_size//client_num *(i+1))]
-        print("dataset size per client: %d" % len(subset_list[i]))
+        print("client: dataset size per client: %d" % len(subset_list[i]))
         
         if task == "FashionMNIST":
             dataloader = DataLoader(subset_list[i], batch_size=batch_size, shuffle=True, drop_last=True)
@@ -117,8 +118,8 @@ if __name__ == "__main__":
             optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=0.0001)
             scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=20, gamma=0.1)  # reduce the learning after 20 epochs by a factor of 10
 
-        # model_len = len(pickle.dumps(model.state_dict()))
-        # print("raw model len: %d" % model_len)
+        model_len = len(pickle.dumps(model.state_dict()))
+        print("client: raw model len on clients: %d" % model_len)
         client = Client(
             task=task,
             dataloader=dataloader,
@@ -135,7 +136,7 @@ if __name__ == "__main__":
 
     # psuedo parallel training
     for i in range(g_epoch_num):
-        print("Epoch %d" % i)
+        print("client: Epoch %d" % i)
         
         # print("Downloading model......")
         for j in range(client_num):
