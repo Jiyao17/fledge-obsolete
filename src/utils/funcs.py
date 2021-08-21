@@ -23,26 +23,24 @@ def get_argument_parser() -> ArgumentParser:
     ap.add_argument("l_batch_size", type=int)
     ap.add_argument("l_lr", type=float)
     # optional
-    ap.add_argument("-p", "--datapath", type=str, default="../data/")
+    ap.add_argument("-p", "--datapath", type=str, default="/home/tuo28237/projects/fledge/data/")
     ap.add_argument("-d", "--device", type=str, default="cpu")
     ap.add_argument("-r", "--result_file", type=str, default="./result.txt")
 
     return ap
 
-def check_device(target_device: str):
+def check_device(target_device: str) -> bool:
     real_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if target_device == "cuda" and target_device != real_device:
-        print("Warning: inconsistence of target device (%s) \
-            and real device equipped(%s)" %
+    if target_device != real_device and target_device == "cuda":
+        print("Error: inconsistence of target device (%s) " \
+            "and real device equipped (%s)" %
             (target_device, real_device)
         )
         return False
-    elif target_device == "cpu":
-        return True
     else:
-        raise "Unknown device."
+        return True
 
-def get_datasets(
+def get_partitioned_datasets(
     task: str,
     client_num: int,
     data_num: int,
@@ -71,4 +69,15 @@ def get_datasets(
     
     return subsets
 
+def get_test_dataset(task: str, data_path: str) -> Subset:
+    if task == "FashionMNIST":
+        test_dataset = datasets.FashionMNIST(
+            root=data_path,
+            train=False,
+            download=True,
+            transform=ToTensor()
+            )
+    elif task == "SpeechCommand":
+        test_dataset = SubsetSC("testing")
 
+    return test_dataset

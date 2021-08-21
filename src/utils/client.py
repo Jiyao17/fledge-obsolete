@@ -13,12 +13,12 @@ from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 class Client():
     def __init__(self, 
             task: str,
-            dataloader: DataLoader,
+            dataset: Dataset,
             epoch_num: int=5,
             device: str="cpu"
             ):
         self.task = task
-        self.dataloader = dataloader
+        self.dataset = dataset
         self.epoch_num = epoch_num
         self.device = device
 

@@ -19,32 +19,28 @@ from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 class Server():
     def __init__(self,
             task: str,
+            test_dataset: Dataset,
             clients: List[Client],
             epoch_num: int,
             device: str="cpu",
             ):
 
         self.task = task
+        self.test_dataset = test_dataset
         self.clients = clients
         self.epoch_num = epoch_num
         self.device = device
-        # set in init_task
+        # set in self.init_task()
         self.model: nn.Module = None
         self.test_dataloader: DataLoader = None
         self.transform: nn.Module = None
+        self.init_task()
 
-    def init_task(self) -> nn.Module:
+    def init_task(self):
         if self.task == "FashionMNIST":
-            test_dataset = datasets.FashionMNIST(
-                root="~/projects/fledge/data/",
-                train=False,
-                download=True,
-                transform=ToTensor()
-                )
-            self.test_dataloader = DataLoader(test_dataset, batch_size=64, drop_last=True)
+            self.test_dataloader = DataLoader(self.test_dataset, batch_size=64, drop_last=True)
             self.model = FashionMNIST_CNN()
         elif self.task == "SpeechCommand":
-            test_dataset = SubsetSC("testing")
             if self.device == "cuda":
                 num_workers = 1
                 pin_memory = True
@@ -52,7 +48,7 @@ class Server():
                 num_workers = 0
                 pin_memory = False
             self.test_dataloader = DataLoader(
-                test_dataset,
+                self.test_dataset,
                 batch_size=64,
                 shuffle=False,
                 drop_last=True,
@@ -78,7 +74,6 @@ class Server():
         """
         for client in self.clients:
             client.model = self.model
-            
 
     def aggregate_model(self):
         # collect models from clients
@@ -97,8 +92,23 @@ class Server():
         # self.model_state_dict = self.model.state_dict()
         # print("model len after aggregation: %d" % len(pickle.dumps(self.model.state_dict())))
 
-    def test_model(self) -> float:
+    def test_FashionMNIST(self):
+        size = len(self.test_dataloader.dataset)
+        test_loss, correct = 0, 0
+
+        with torch.no_grad():
+            for X, y in self.test_dataloader:
+                pred = self.model(X.to(self.device))
+                # test_loss += loss_fn(pred, y.to(self.device)).item()
+                correct += (pred.argmax(1) == y.to(self.device)).type(torch.float).sum().item()
+        correct /= size
+
+        return correct
+
+    def test_SpeechCommand(self):
         self.model.eval()
+        dataset_size = len(self.test_dataloader.dataset)
+
         correct = 0
         for data, target in self.test_dataloader:
             data = data.to(self.device)
@@ -110,5 +120,12 @@ class Server():
             pred = get_likely_index(output)
             # pred = output.argmax(dim=-1)
             correct += number_of_correct(pred, target)
-        # print("Accuracy: %.1f%\n" % 100. * correct / len(self.test_dataloader.dataset))
-        return 1.0 * correct / len(self.test_dataloader.dataset)
+
+        return 1.0 * correct / dataset_size
+
+    def test_model(self) -> float:
+        if self.task == "FashionMNIST":
+            return self.test_FashionMNIST()
+        if self.task == "SpeechCommand":
+            return self.test_SpeechCommand()
+

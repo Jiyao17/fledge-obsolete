@@ -5,7 +5,7 @@ import torch
 
 from utils.server import Server
 from utils.client import Client
-from utils.funcs import get_argument_parser, check_device, get_datasets
+from utils.funcs import get_argument_parser, check_device, get_partitioned_datasets, get_test_dataset
 
 def run_sim(server: Server):
 
@@ -15,7 +15,7 @@ def run_sim(server: Server):
         l_accuracy: List[float]
         for j in range(len(clients)):
             clients[j].train_model()
-            l_accuracy[j] = clients[j].test_model()
+            # l_accuracy[j] = clients[j].test_model()
         
         server.aggregate_model()
         g_accuracy = server.test_model()
@@ -49,20 +49,19 @@ if __name__ == "__main__":
     if TASK not in SUPPORTED_TASKS:
         raise "Task not supported."
     if check_device(DEVICE) == False:
-        raise "CUDA required by input settings but not equipped."
+        raise "Targeted and equipped devices inconsist."
 
     # partition data
-    datasets = get_datasets(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE, DATA_PATH)
+    datasets = get_partitioned_datasets(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE, DATA_PATH)
+    test_dataset = get_test_dataset(TASK, DATA_PATH)
     # initialize server and clients
     clients: List[Client] = [
         Client(TASK, datasets[i], L_EPOCH_NUM, DEVICE) 
         for i in range(CLIENT_NUM)
         ]
-    server = Server(TASK, clients,  G_EPOCH_NUM, DEVICE)
+    server = Server(TASK, test_dataset, clients,  G_EPOCH_NUM, DEVICE)
 
     # run_sim(server)
-
-
 
     print("Args: %s %d %d %d %d %d %f %s %s %s" %
         (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
