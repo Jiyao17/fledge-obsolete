@@ -1,30 +1,12 @@
 
 from typing import List
-from argparse import ArgumentParser
 
 import torch
-from torch.utils.data import DataLoader
 
 from utils.server import Server
 from utils.client import Client
+from utils.funcs import get_argument_parser, get_datasets
 
-
-def get_argument_parser() -> ArgumentParser:
-    ap = ArgumentParser()
-    # positional
-    ap.add_argument("task", type=str)
-    ap.add_argument("g_epoch_num", type=int)
-    ap.add_argument("client_num", type=int)
-    ap.add_argument("l_data_num", type=int)
-    ap.add_argument("l_epoch_num", type=int)
-    ap.add_argument("l_batch_size", type=int)
-    ap.add_argument("l_lr", type=float)
-    # optional
-    ap.add_argument("-p", "--datapath", type=str, default="~/projects/fledge/data/")
-    ap.add_argument("-d", "--device", type=str, default="cpu")
-    ap.add_argument("-r", "--result_file", type=str, default="./result.txt")
-
-    return ap
 
 def check_device(target_device: str, real_device: str):
     if target_device == "cuda" and target_device != real_device:
@@ -35,15 +17,6 @@ def check_device(target_device: str, real_device: str):
         return False
     else:
         return True
-
-def get_dataloader_list(task: str, client_num: int, data_num: int, batch_size: int) \
-    -> List[DataLoader]:
-    if task == "FashionMNIST":
-        pass
-    elif task == "SpeechCommand":
-        pass
-    
-
 
 def run_sim(server: Server):
 
@@ -65,7 +38,7 @@ def run_sim(server: Server):
 
 if __name__ == "__main__":
 
-    ap: ArgumentParser = get_argument_parser()
+    ap = get_argument_parser()
     args = ap.parse_args()
 
     TASK: str = args.task # limited: FashionMNIST/SpeechCommand/
@@ -93,12 +66,11 @@ if __name__ == "__main__":
         raise "CUDA required by input settings but not equipped."
 
     # partition data
-    dataloaders: List[DataLoader]
-    dataloaders = get_dataloader_list(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE)
+    datasets = get_datasets(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE, DATA_PATH)
 
     # initialize server and clients
     clients: List[Client] = [
-        Client(TASK, dataloaders[i], L_EPOCH_NUM, DEVICE) 
+        Client(TASK, datasets[i], L_EPOCH_NUM, DEVICE) 
         for i in range(CLIENT_NUM)
         ]
     server = Server(TASK, clients,  G_EPOCH_NUM, DEVICE)
@@ -107,19 +79,6 @@ if __name__ == "__main__":
         (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
         )
 
-    run_sim(server)
+    # run_sim(server)
 
 
-
-    # if TASK == "FashoinMNIST":
-    #     run_FashionMNIST(server, clients)
-    # elif TASK == "SpeechCommand":
-    #     run_SpeechCommand(server, clients)
-    # else:
-    #     raise "Unsupported task."
-
-# def run_FashionMNIST(server: Server, clients: List[Client]):
-#     pass
-
-# def run_SpeechCommand(server: Server, clients: List[Client]):
-#     pass
