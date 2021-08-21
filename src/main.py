@@ -3,6 +3,7 @@ from typing import List
 from argparse import ArgumentParser
 
 import torch
+from torch.utils.data import DataLoader
 
 from utils.server import Server
 from utils.client import Client
@@ -25,7 +26,26 @@ def get_argument_parser() -> ArgumentParser:
 
     return ap
 
-def run_sim(server: Server, clients: List[Client]):
+def check_device(target_device: str, real_device: str):
+    if target_device == "cuda" and target_device != real_device:
+        print("Warning: inconsistence of target device (%s) \
+            and real device equipped(%s)" %
+            (target_device, real_device)
+        )
+        return False
+    else:
+        return True
+
+def get_dataloader_list(task: str, client_num: int, data_num: int, batch_size: int) \
+    -> List[DataLoader]:
+    if task == "FashionMNIST":
+        pass
+    elif task == "SpeechCommand":
+        pass
+    
+
+
+def run_sim(server: Server):
 
     for i in range(server.epoch_num):
         server.distribute_model()
@@ -38,7 +58,7 @@ def run_sim(server: Server, clients: List[Client]):
         server.aggregate_model()
         g_accuracy = server.test_model()
 
-        print("Epoch %d" % i)
+        print("Epoch %d ......" % i)
         print("Global accuracy:\n%.2f%" % g_accuracy*100)
         print("Local accuracy:")
         print(l_accuracy)
@@ -62,17 +82,32 @@ if __name__ == "__main__":
     DEVICE: str = torch.device(args.device)
     RESULT_FILE: str = args.result_file
 
+    # input check
+    # task check
+    SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand"]
+    if TASK not in SUPPORTED_TASKS:
+        raise "Task not supported."
+    # check device
+    real_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if check_device(DEVICE, real_device) == False:
+        raise "CUDA required by input settings but not equipped."
+
+    # partition data
+    dataloaders: List[DataLoader]
+    dataloaders = get_dataloader_list(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE)
+
+    # initialize server and clients
     clients: List[Client] = [
-        Client(TASK, L_EPOCH_NUM, DEVICE) 
+        Client(TASK, dataloaders[i], L_EPOCH_NUM, DEVICE) 
         for i in range(CLIENT_NUM)
         ]
-    server = Server(TASK, CLIENT_NUM, DEVICE, G_EPOCH_NUM)
+    server = Server(TASK, clients,  G_EPOCH_NUM, DEVICE)
 
     print("Args: %s %d %d %d %d %d %f %s %s %s" %
         (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
         )
 
-    # run_sim(server, clients)
+    run_sim(server)
 
 
 

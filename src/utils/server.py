@@ -17,7 +17,7 @@ class Server():
             ):
 
         self.task = task
-        self.clients = clients
+        self.clients = clients,
         self.epoch_num = epoch_num
         self.device = device
 
@@ -25,7 +25,6 @@ class Server():
         """
         Send global model to clients.
         """
-        state_bytes = pickle.dumps(self.model_state_dict)
         # print("length of model to distribute: %d" % len(state_bytes))
         for conn in self.net.client_conn_list:
             # msg_len = len(state_bytes)
@@ -43,12 +42,10 @@ class Server():
         """
         # collect models from clients
         state_dict_list: List[Dict[str, Tensor]] = []
-        for conn in self.net.client_conn_list:
+        for conn in self.:
             # dict_len = ServerNet.recv(conn, 4)
             # len_int = int.from_bytes(dict_len, 'big')
             # print("Model length: %d" % len_int)
-            state_bytes = ServerNet.recv(conn, self.model_len)
-            state_dict: Dict[str, Tensor] = pickle.loads(state_bytes)
             state_dict_list.append(state_dict) # optimizable
 
         # calculate average model

@@ -11,29 +11,12 @@ from torchvision.transforms import ToTensor
 class Client():
     def __init__(self, 
             task: str,
-            # dataloader: DataLoader=None,
-            # model: nn.Module=None,
-            # loss_fn = None,
-            # optimizer: Optimizer=None,
-            # scheduler: StepLR=None,
-            # transform = None,
+            dataloader: DataLoader,
             epoch_num: int=5,
             device: str="cpu"
             ):
-        # if dataloader == None:
-        #     raise "Invalid dataloader."
-        # if model == None:
-        #     raise "Invalid model."
-        # if optimizer == None:
-        #     raise "Invalid optimizer."
-
         self.task = task
-        # self.dataloader = dataloader
-        # self.model = model.to(device)
-        # self.loss_fn = loss_fn
-        # self.optimizer=optimizer
-        # self.scheduler=scheduler
-        # self.transform=transform
+        self.dataloader = dataloader
         self.epoch_num = epoch_num
         self.device = device
 
