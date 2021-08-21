@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 
+from utils.model import FashionMNIST_CNN, SpeechCommand_M5
+
 
 class Client():
     def __init__(self, 
@@ -20,8 +22,15 @@ class Client():
         self.epoch_num = epoch_num
         self.device = device
 
-    def download_model(self):
-        pass
+        self.model = self.init_model()
+
+    def init_model(self) -> nn.Module:
+        if self.task == "FashionMNIST":
+            model = FashionMNIST_CNN()
+        elif self.task == "SpeechCommand":
+            model = SpeechCommand_M5()
+        
+        return model
 
     def train_model(self):
         for i in range(self.epoch_num):
@@ -31,10 +40,6 @@ class Client():
             elif self.task == "SpeechCommand":
                 self.train_SpeechCommand()
                 self.scheduler.step()
-
-    def upload_model(self):
-        # upload model
-        pass
 
     def train_FashionMNIST(self):
         for batch, (X, y) in enumerate(self.dataloader):

@@ -3,14 +3,13 @@
 from typing import List
 from argparse import ArgumentParser
 
+import torch
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
 from torch.utils.data import DataLoader, Subset, dataset, Dataset, random_split
 
 from utils.audio import SubsetSC
-
-
 
 
 def get_argument_parser() -> ArgumentParser:
@@ -29,6 +28,19 @@ def get_argument_parser() -> ArgumentParser:
     ap.add_argument("-r", "--result_file", type=str, default="./result.txt")
 
     return ap
+
+def check_device(target_device: str):
+    real_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if target_device == "cuda" and target_device != real_device:
+        print("Warning: inconsistence of target device (%s) \
+            and real device equipped(%s)" %
+            (target_device, real_device)
+        )
+        return False
+    elif target_device == "cpu":
+        return True
+    else:
+        raise "Unknown device."
 
 def get_datasets(
     task: str,

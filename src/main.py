@@ -5,18 +5,7 @@ import torch
 
 from utils.server import Server
 from utils.client import Client
-from utils.funcs import get_argument_parser, get_datasets
-
-
-def check_device(target_device: str, real_device: str):
-    if target_device == "cuda" and target_device != real_device:
-        print("Warning: inconsistence of target device (%s) \
-            and real device equipped(%s)" %
-            (target_device, real_device)
-        )
-        return False
-    else:
-        return True
+from utils.funcs import get_argument_parser, check_device, get_datasets
 
 def run_sim(server: Server):
 
@@ -56,18 +45,14 @@ if __name__ == "__main__":
     RESULT_FILE: str = args.result_file
 
     # input check
-    # task check
     SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand"]
     if TASK not in SUPPORTED_TASKS:
         raise "Task not supported."
-    # check device
-    real_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if check_device(DEVICE, real_device) == False:
+    if check_device(DEVICE) == False:
         raise "CUDA required by input settings but not equipped."
 
     # partition data
     datasets = get_datasets(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE, DATA_PATH)
-
     # initialize server and clients
     clients: List[Client] = [
         Client(TASK, datasets[i], L_EPOCH_NUM, DEVICE) 
@@ -75,10 +60,11 @@ if __name__ == "__main__":
         ]
     server = Server(TASK, clients,  G_EPOCH_NUM, DEVICE)
 
+    # run_sim(server)
+
+
+
     print("Args: %s %d %d %d %d %d %f %s %s %s" %
         (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
         )
-
-    # run_sim(server)
-
 
