@@ -54,7 +54,7 @@ class Client():
                 self._train_FashionMNIST()
             elif self.task == "SpeechCommand":
                 self._train_SpeechCommand()
-                self.scheduler.step()
+                # self.scheduler.step()
      
     def test_model(self) -> float:
         pass
@@ -105,7 +105,7 @@ class Client():
 
     def _train_FashionMNIST(self):
         self.model = self.model.to(self.device)
-        for batch, (X, y) in enumerate(self.dataloader):
+        for batch, (X, y) in enumerate(self.train_dataloader):
             # Compute prediction and loss
             pred = self.model(X.cuda())
             loss = self.loss_fn(pred, y.cuda())

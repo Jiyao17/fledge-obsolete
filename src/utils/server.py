@@ -34,7 +34,10 @@ class Server():
         self.model: nn.Module = None
         self.test_dataloader: DataLoader = None
         self.transform: nn.Module = None
+        self.state_dicts: List[Dict[str, Tensor]] = None
         self.init_task()
+
+        
 
     def init_task(self):
         if self.task == "FashionMNIST":
@@ -62,12 +65,16 @@ class Server():
             set_LABELS(labels)
             new_sample_rate = 8000
             self.transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
-            # transformed = self.transform(waveform)
+            transformed = self.transform(waveform)
             self.transform = self.transform.to(self.device)
             self.model = SpeechCommand_M5(
-                # n_input=transformed.shape[0],
-                # n_output=len(labels)
+                n_input=transformed.shape[0],
+                n_output=len(labels)
                 )
+        self.state_dicts = [
+            client.model.state_dict()
+            for client in self.clients
+            ]
 
     def distribute_model(self):
         """
@@ -78,14 +85,17 @@ class Server():
 
     def aggregate_model(self):
         # collect models from clients
-        state_dict_list = [client.model.state_dict() for client in self.clients]
+        self.state_dicts = [
+            client.model.state_dict()
+            for client in self.clients
+            ]
 
         # calculate average model
-        state_dict_avg = state_dict_list[0]
+        state_dict_avg = self.state_dicts[0]
         for key in state_dict_avg.keys():
-            for i in range(1, len(state_dict_list)):
-                state_dict_avg[key] += state_dict_list[i][key]
-            state_dict_avg[key] = torch.div(state_dict_avg[key], len(state_dict_list))
+            for i in range(1, len(self.state_dicts)):
+                state_dict_avg[key] += self.state_dicts[i][key]
+            state_dict_avg[key] = torch.div(state_dict_avg[key], len(self.state_dicts))
         
         # load average model
         self.model.load_state_dict(state_dict_avg)
@@ -109,7 +119,6 @@ class Server():
     def test_SpeechCommand(self):
         self.model.eval()
         dataset_size = len(self.test_dataloader.dataset)
-
         correct = 0
         for data, target in self.test_dataloader:
             data = data.to(self.device)
