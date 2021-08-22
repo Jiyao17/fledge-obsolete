@@ -2,7 +2,6 @@
 from typing import List
 
 import torch
-
 from utils.server import Server
 from utils.client import Client
 from utils.funcs import get_argument_parser, check_device, get_partitioned_datasets, get_test_dataset
