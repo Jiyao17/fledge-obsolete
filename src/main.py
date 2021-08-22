@@ -22,9 +22,9 @@ def run_sim(server: Server, verbosity: int = 1):
 
         if VERBOSITY >= 1:
             print("Epoch %d ......" % i)
-            print("Global accuracy:\n%.2f%" % g_accuracy*100)
-            print("Local accuracy:")
-            print(l_accuracy)
+            print(f"Global accuracy: {g_accuracy*100:.2f}%")
+            # print("Local accuracy:")
+            # print(l_accuracy)
 
 if __name__ == "__main__":
 

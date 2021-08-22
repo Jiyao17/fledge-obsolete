@@ -32,6 +32,7 @@ class Client():
         self.device = device
         # set by self.init_task()
         self.train_dataloader: DataLoader = None
+        self.transform: nn.Module = None
         self.loss_fn = None
         self.optimizer: Optimizer = None
         self.scheduler = None
@@ -70,7 +71,6 @@ class Client():
         self.optimizer = optim.SGD(self.model.parameters(), lr=self.lr)
         self.scheduler = None
 
-
     def _init_SpeechCommand(self):
         if self.device == "cuda":
             num_workers = 1
@@ -92,8 +92,9 @@ class Client():
         labels = sorted(list(set(datapoint[2] for datapoint in self.test_dataset)))
         set_LABELS(labels)
         new_sample_rate = 8000
-        self.transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
-        transformed: Resample = self.transform(waveform)
+        transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
+        transformed: Resample = transform(waveform)
+        self.transform = transform.to(self.device)
         self.loss_fn = F.nll_loss
         self.model = SpeechCommand_M5(
             n_input=transformed.shape[0],
@@ -101,10 +102,9 @@ class Client():
             )
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=0.0001)
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.1)  # reduce the learning after 20 epochs by a factor of 10
-    
-
 
     def _train_FashionMNIST(self):
+        self.model = self.model.to(self.device)
         for batch, (X, y) in enumerate(self.dataloader):
             # Compute prediction and loss
             pred = self.model(X.cuda())
@@ -116,6 +116,7 @@ class Client():
             self.optimizer.step()
 
     def _train_SpeechCommand(self):
+        self.model = self.model.to(self.device)
         self.model.train()
         for batch_idx, (data, target) in enumerate(self.dataloader):
             data = data.to(self.device)

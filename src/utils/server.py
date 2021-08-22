@@ -63,6 +63,7 @@ class Server():
             new_sample_rate = 8000
             self.transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)
             # transformed = self.transform(waveform)
+            self.transform = self.transform.to(self.device)
             self.model = SpeechCommand_M5(
                 # n_input=transformed.shape[0],
                 # n_output=len(labels)
