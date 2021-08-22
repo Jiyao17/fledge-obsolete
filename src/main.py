@@ -8,23 +8,25 @@ from utils.client import Client
 from utils.funcs import get_argument_parser, check_device, get_partitioned_datasets, get_test_dataset
 
 def run_sim(server: Server, verbosity: int = 1):
-
+    server = server
     for i in range(server.epoch_num):
         server.distribute_model()
 
-        l_accuracy: List[float]
-        for j in range(len(clients)):
-            clients[j].train_model()
-            # l_accuracy[j] = clients[j].test_model()
-        
-        server.aggregate_model()
-        g_accuracy = server.test_model()
-
+        # l_accuracy = [client.test_model() for client in server.clients]
         if VERBOSITY >= 1:
             print("Epoch %d ......" % i)
-            print(f"Global accuracy: {g_accuracy*100:.2f}%")
-            # print("Local accuracy:")
-            # print(l_accuracy)
+            # print(f"Local accuracy before training: {[acc for acc in l_accuracy]}")
+
+        for j in range(len(clients)):
+            clients[j].train_model()
+        server.aggregate_model()
+
+        # l_accuracy = [client.test_model() for client in server.clients]
+        g_accuracy = server.test_model()
+        if VERBOSITY >= 1:
+            print(f"Global accuracy:{g_accuracy*100:.2f}%")
+            # print(f"Local accuracy after training: {[acc for acc in l_accuracy]}")
+
 
 if __name__ == "__main__":
 
@@ -50,7 +52,6 @@ if __name__ == "__main__":
         print("Input args: %s %d %d %d %d %d %f %s %s %s" %
             (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
             )
-
 
     # input check
     SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand"]

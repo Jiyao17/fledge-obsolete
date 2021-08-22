@@ -1,5 +1,6 @@
 
 from typing import List, Dict
+import copy
 
 import torch
 from torch import nn, Tensor
@@ -37,7 +38,7 @@ class Server():
         self.state_dicts: List[Dict[str, Tensor]] = None
         self.init_task()
 
-        
+        self.test_list = [1]
 
     def init_task(self):
         if self.task == "FashionMNIST":
@@ -80,44 +81,47 @@ class Server():
         """
         Send global model to clients.
         """
+        state_dict = self.model.state_dict()
         for client in self.clients:
-            client.model = self.model
+            new_state_dict = copy.deepcopy(state_dict)
+            client.model.load_state_dict(new_state_dict)
 
     def aggregate_model(self):
-        # collect models from clients
-        self.state_dicts = [
+        state_dicts = [
             client.model.state_dict()
             for client in self.clients
             ]
-
         # calculate average model
-        state_dict_avg = self.state_dicts[0]
+        state_dict_avg = state_dicts[0]
         for key in state_dict_avg.keys():
-            for i in range(1, len(self.state_dicts)):
-                state_dict_avg[key] += self.state_dicts[i][key]
+            for i in range(1, len(state_dicts)):
+                state_dict_avg[key] += state_dicts[i][key]
             state_dict_avg[key] = torch.div(state_dict_avg[key], len(self.state_dicts))
         
-        # load average model
         self.model.load_state_dict(state_dict_avg)
-        self.model = self.model.to(self.device)
-        # self.model_state_dict = self.model.state_dict()
-        # print("model len after aggregation: %d" % len(pickle.dumps(self.model.state_dict())))
 
-    def test_FashionMNIST(self):
+    def test_model(self) -> float:
+        self.model = self.model.to(self.device)
+        self.model.eval()
+        if self.task == "FashionMNIST":
+            return self._test_FashionMNIST()
+        if self.task == "SpeechCommand":
+            return self._test_SpeechCommand()
+
+    def _test_FashionMNIST(self):
         size = len(self.test_dataloader.dataset)
         test_loss, correct = 0, 0
 
-        with torch.no_grad():
-            for X, y in self.test_dataloader:
-                pred = self.model(X.to(self.device))
-                # test_loss += loss_fn(pred, y.to(self.device)).item()
-                correct += (pred.argmax(1) == y.to(self.device)).type(torch.float).sum().item()
+        # with torch.no_grad():
+        for X, y in self.test_dataloader:
+            pred = self.model(X.to(self.device))
+            # test_loss += loss_fn(pred, y.to(self.device)).item()
+            correct += (pred.argmax(1) == y.to(self.device)).type(torch.float).sum().item()
         correct /= size
 
         return correct
 
-    def test_SpeechCommand(self):
-        self.model.eval()
+    def _test_SpeechCommand(self):
         dataset_size = len(self.test_dataloader.dataset)
         correct = 0
         for data, target in self.test_dataloader:
@@ -133,9 +137,4 @@ class Server():
 
         return 1.0 * correct / dataset_size
 
-    def test_model(self) -> float:
-        if self.task == "FashionMNIST":
-            return self.test_FashionMNIST()
-        if self.task == "SpeechCommand":
-            return self.test_SpeechCommand()
 
