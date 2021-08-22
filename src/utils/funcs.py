@@ -26,6 +26,7 @@ def get_argument_parser() -> ArgumentParser:
     ap.add_argument("-p", "--datapath", type=str, default="/home/tuo28237/projects/fledge/data/")
     ap.add_argument("-d", "--device", type=str, default="cpu")
     ap.add_argument("-r", "--result_file", type=str, default="./result.txt")
+    ap.add_argument("-v", "--verbosity", type=int,default=1)
 
     return ap
 
@@ -78,6 +79,6 @@ def get_test_dataset(task: str, data_path: str) -> Subset:
             transform=ToTensor()
             )
     elif task == "SpeechCommand":
-        test_dataset = SubsetSC("testing")
+        test_dataset = SubsetSC("testing", data_path)
 
     return test_dataset

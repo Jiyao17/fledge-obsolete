@@ -57,8 +57,8 @@ class Server():
                 pin_memory=pin_memory,
                 )
 
-            waveform, sample_rate, label, speaker_id, utterance_number = test_dataset[0]
-            labels = sorted(list(set(datapoint[2] for datapoint in test_dataset)))
+            waveform, sample_rate, label, speaker_id, utterance_number = self.test_dataset[0]
+            labels = sorted(list(set(datapoint[2] for datapoint in self.test_dataset)))
             set_LABELS(labels)
             new_sample_rate = 8000
             self.transform = torchaudio.transforms.Resample(orig_freq=sample_rate, new_freq=new_sample_rate)

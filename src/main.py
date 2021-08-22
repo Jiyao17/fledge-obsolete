@@ -7,7 +7,7 @@ from utils.server import Server
 from utils.client import Client
 from utils.funcs import get_argument_parser, check_device, get_partitioned_datasets, get_test_dataset
 
-def run_sim(server: Server):
+def run_sim(server: Server, verbosity: int = 1):
 
     for i in range(server.epoch_num):
         server.distribute_model()
@@ -20,10 +20,11 @@ def run_sim(server: Server):
         server.aggregate_model()
         g_accuracy = server.test_model()
 
-        print("Epoch %d ......" % i)
-        print("Global accuracy:\n%.2f%" % g_accuracy*100)
-        print("Local accuracy:")
-        print(l_accuracy)
+        if VERBOSITY >= 1:
+            print("Epoch %d ......" % i)
+            print("Global accuracy:\n%.2f%" % g_accuracy*100)
+            print("Local accuracy:")
+            print(l_accuracy)
 
 if __name__ == "__main__":
 
@@ -43,6 +44,13 @@ if __name__ == "__main__":
     DATA_PATH: str = args.datapath
     DEVICE: str = torch.device(args.device)
     RESULT_FILE: str = args.result_file
+    VERBOSITY: int = args.verbosity
+
+    if VERBOSITY >= 2:
+        print("Input args: %s %d %d %d %d %d %f %s %s %s" %
+            (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
+            )
+
 
     # input check
     SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand"]
@@ -56,14 +64,12 @@ if __name__ == "__main__":
     test_dataset = get_test_dataset(TASK, DATA_PATH)
     # initialize server and clients
     clients: List[Client] = [
-        Client(TASK, datasets[i], L_EPOCH_NUM, DEVICE) 
+        Client(TASK, datasets[i], L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DEVICE) 
         for i in range(CLIENT_NUM)
         ]
-    server = Server(TASK, test_dataset, clients,  G_EPOCH_NUM, DEVICE)
+    server = Server(TASK, test_dataset, clients, G_EPOCH_NUM, DEVICE)
 
-    # run_sim(server)
+    run_sim(server, VERBOSITY)
 
-    print("Args: %s %d %d %d %d %d %f %s %s %s" %
-        (TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE)
-        )
+    
 
