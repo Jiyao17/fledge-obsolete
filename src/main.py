@@ -109,7 +109,7 @@ if __name__ == "__main__":
         while que.empty() == False:
             result = que.get()
             print(result)
-            [f.write("%.2f") for num in result]
+            [f.write(f"{num*100:.2f}% ") for num in result]
             f.write("\n")
         
         f.write("\n")
