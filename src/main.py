@@ -10,7 +10,6 @@ from utils.funcs import get_argument_parser, check_device, get_partitioned_datas
 
 from multiprocessing import Process, Queue, set_start_method
 
-
 def run_sim(que: Queue, task, g_epoch_num, client_num, l_data_num, l_epoch_num, l_batch_size, l_lr, data_path, device, result_file, verbosity):
     # partition data
     datasets = get_partitioned_datasets(task, client_num, l_data_num, l_batch_size, data_path)
