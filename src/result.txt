@@ -83,16 +83,3 @@ lr_local=0.01 client_num=12 data_per_client=5000 global_epoch_num=100 local_epoc
 74.2% 77.8% 79.0% 79.3% 80.0% 89.5% 89.2% 89.6% 90.2% 90.0%
 78.9% 82.4% 87.2% 88.1% 88.9% 89.1% 89.1% 89.5% 90.2% 90.0%
 66.1% 68.8% 69.1% 69.9% 70.5% 70.7% 70.9% 71.3% 71.2% 71.3%
-
-TASK G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
-FashionMNIST          10          3      10000           5         256 0.01TASK G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
-FashionMNIST         100          3      20000           5         256 0.01TASK G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
-FashionMNIST          10          3      20000           5         256 0.01[0.5141, 0.5639, 0.6766, 0.6965, 0.713]
-TASK         G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
-FashionMNIST          10          3       2000           5          256 0.01
-[0.1314, 0.1788, 0.2134, 0.2877, 0.3278]
-TASK         G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
-FashionMNIST          10          3       2000           5          256 0.01
-0.1796 0.3581 0.3892 0.3894 0.3906 
-TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
-SpeechCommand         100          3       2000           3          256 0.01

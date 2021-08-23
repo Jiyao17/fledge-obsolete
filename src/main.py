@@ -36,7 +36,7 @@ def run_sim(que: Queue, task, g_epoch_num, client_num, l_data_num, l_epoch_num, 
         if verbosity >= 1:
             print(f"Global accuracy:{g_accuracy*100:.2f}%")
             # print(f"Local accuracy after training: {[acc for acc in l_accuracy]}")
-        if i % 2 == 1:
+        if i % 10 == 9:
             result.append(g_accuracy)
 
     que.put(result)

@@ -59,7 +59,7 @@ class Client():
                 self._train_FashionMNIST()
             elif self.task == "SpeechCommand":
                 self._train_SpeechCommand()
-                # self.scheduler.step()
+                self.scheduler.step()
 
     def _init_FashionMNIST(self):
         self.train_dataloader = DataLoader(
