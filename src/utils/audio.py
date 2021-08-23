@@ -45,7 +45,6 @@ def pad_sequence(batch):
 def collate_fn(batch):
     # A data tuple has the form:
     # waveform, sample_rate, label, speaker_id, utterance_number
-    
     tensors, targets = [], []
 
     # Gather in lists, and encode labels as indices

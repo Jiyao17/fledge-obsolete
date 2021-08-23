@@ -6,15 +6,11 @@ import torch
 from torch import nn, Tensor
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data import Dataset
-from torchvision.transforms import ToTensor
-from torchvision import datasets
 import torchaudio
 
-
-from utils.audio import SubsetSC, collate_fn, number_of_correct, get_likely_index, set_LABELS, count_parameters
+from utils.audio import collate_fn, number_of_correct, get_likely_index, set_LABELS, count_parameters
 from utils.client import Client
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
-
 
 
 class Server():
@@ -80,7 +76,6 @@ class Server():
         dic = self.model.state_dict()
         self.init_model_dict = copy.deepcopy(dic)
         del(dic)
-
 
     def distribute_model(self):
         """

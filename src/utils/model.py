@@ -1,7 +1,7 @@
 
-
 from torch import nn
 import torch.nn.functional as F
+
 
 class FashionMNIST_CNN(nn.Module):
     def __init__(self):

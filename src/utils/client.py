@@ -6,16 +6,14 @@ from torch.optim import Optimizer
 from torch.nn.modules import loss
 from torch.utils.data import Dataset, DataLoader
 from torchaudio.transforms import Resample
-from torchvision import datasets
-from torchvision.transforms import ToTensor
 from torch.nn.modules.loss import CrossEntropyLoss
 import torchaudio
 import torch.nn.functional as F
 
-
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5
 from utils.audio import collate_fn, set_LABELS
 from utils.funcs import get_test_dataset
+
 
 class Client():
     def __init__(self,
@@ -130,7 +128,6 @@ class Client():
             loss.backward()
             self.optimizer.step()
 
-
     def test_model(self) -> float:
         # functionality of testing local model is not guaranteed yet
         self.model = self.model.to(self.device)
@@ -171,5 +168,3 @@ class Client():
         #     correct += number_of_correct(pred, target)
 
         # return 1.0 * correct / dataset_size
-
-
