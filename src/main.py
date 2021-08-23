@@ -1,4 +1,6 @@
 
+from multiprocessing.context import Process
+import queue
 from typing import List
 
 import torch
@@ -6,25 +8,38 @@ from utils.server import Server
 from utils.client import Client
 from utils.funcs import get_argument_parser, check_device, get_partitioned_datasets, get_test_dataset
 
-def run_sim(server: Server, verbosity: int = 1):
-    server = server
+from multiprocessing import Process, Queue, set_start_method
+
+
+def run_sim(que: Queue, task, g_epoch_num, client_num, l_data_num, l_epoch_num, l_batch_size, l_lr, data_path, device, result_file, verbosity):
+    # partition data
+    datasets = get_partitioned_datasets(task, client_num, l_data_num, l_batch_size, data_path)
+    test_dataset = get_test_dataset(task, data_path)
+    # initialize server and clients
+    clients: List[Client] = [
+        Client(task, datasets[i], l_epoch_num, l_batch_size, l_lr, device) 
+        for i in range(client_num)
+        ]
+    server = Server(task, test_dataset, clients, g_epoch_num, device)
+
+    result: List[float] = []
     for i in range(server.epoch_num):
-        server.distribute_model()
-
-        # l_accuracy = [client.test_model() for client in server.clients]
-        if VERBOSITY >= 1:
+        if verbosity >= 1:
             print("Epoch %d ......" % i)
-            # print(f"Local accuracy before training: {[acc for acc in l_accuracy]}")
 
-        for j in range(len(clients)):
-            clients[j].train_model()
+        server.distribute_model()
+        for j in range(len(server.clients)):
+            server.clients[j].train_model()
         server.aggregate_model()
-
         # l_accuracy = [client.test_model() for client in server.clients]
         g_accuracy = server.test_model()
-        if VERBOSITY >= 1:
+        if verbosity >= 1:
             print(f"Global accuracy:{g_accuracy*100:.2f}%")
             # print(f"Local accuracy after training: {[acc for acc in l_accuracy]}")
+        if i % 2 == 1:
+            result.append(g_accuracy)
+
+    que.put(result)
 
 
 if __name__ == "__main__":
@@ -46,6 +61,7 @@ if __name__ == "__main__":
     DEVICE: str = torch.device(args.device)
     RESULT_FILE: str = args.result_file
     VERBOSITY: int = args.verbosity
+    RUN_NUM: int = args.run_num
 
     if VERBOSITY >= 2:
         print("Input args: %s %d %d %d %d %d %f %s %s %s" %
@@ -55,21 +71,40 @@ if __name__ == "__main__":
     # input check
     SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand"]
     if TASK not in SUPPORTED_TASKS:
-        raise "Task not supported."
+        raise "Task not supported!"
     if check_device(DEVICE) == False:
-        raise "Targeted and equipped devices inconsist."
+        raise "CUDA required by input but not equipped!"
 
-    # partition data
-    datasets = get_partitioned_datasets(TASK, CLIENT_NUM, L_DATA_NUM, L_BATCH_SIZE, DATA_PATH)
-    test_dataset = get_test_dataset(TASK, DATA_PATH)
-    # initialize server and clients
-    clients: List[Client] = [
-        Client(TASK, datasets[i], L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DEVICE) 
-        for i in range(CLIENT_NUM)
-        ]
-    server = Server(TASK, test_dataset, clients, G_EPOCH_NUM, DEVICE)
+    # run_sim(Queue(), TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE, VERBOSITY)
+    # exit()
 
-    run_sim(server, VERBOSITY)
+    set_start_method("spawn")
+    que = Queue()
+    procs: List[Process] = []
 
-    
+    for i in range(RUN_NUM):
+        proc = Process(
+                target=run_sim,
+                args=(que, TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE, VERBOSITY)
+            )
+        proc.start()
+        procs.append(proc)
 
+    for proc in procs:
+        proc.join()
+
+    with open(RESULT_FILE, "a") as f:
+        args = "{:12} {:11} {:10} {:10} {:11} {:12} {:4}".format(
+            TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR
+            )
+        f.write(
+            "TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR\n" +
+            args + "\n"
+            )
+
+        while que.empty() == False:
+            result = que.get()
+            print(result)
+            [f.write(str(num)+" ") for num in result]
+        
+        f.write("\n")

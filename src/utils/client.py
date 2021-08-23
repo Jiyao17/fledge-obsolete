@@ -130,7 +130,9 @@ class Client():
             loss.backward()
             self.optimizer.step()
 
+
     def test_model(self) -> float:
+        # functionality of testing local model is not guaranteed yet
         self.model = self.model.to(self.device)
         self.model.eval()
         if self.task == "FashionMNIST":

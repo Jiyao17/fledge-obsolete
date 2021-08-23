@@ -36,9 +36,9 @@ class Server():
         self.test_dataloader: DataLoader = None
         self.transform: nn.Module = None
         self.state_dicts: List[Dict[str, Tensor]] = None
+        # used for repeat tests by self.reset_model()
+        self.init_model = None
         self.init_task()
-
-        self.test_list = [1]
 
     def init_task(self):
         if self.task == "FashionMNIST":
@@ -77,6 +77,11 @@ class Server():
             for client in self.clients
             ]
 
+        dic = self.model.state_dict()
+        self.init_model_dict = copy.deepcopy(dic)
+        del(dic)
+
+
     def distribute_model(self):
         """
         Send global model to clients.
@@ -107,6 +112,11 @@ class Server():
             return self._test_FashionMNIST()
         if self.task == "SpeechCommand":
             return self._test_SpeechCommand()
+
+    def reset_model(self):
+        dic = copy.deepcopy(self.init_model_dict)
+        self.model.load_state_dict(dic)
+        del(dic)
 
     def _test_FashionMNIST(self):
         size = len(self.test_dataloader.dataset)
