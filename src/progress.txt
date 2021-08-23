@@ -1,7 +1,21 @@
-progress： client_num=3
-progress： client_num=6
-progress： client_num=9
-progress： client_num=3
-progress： client_num=6
-progress： client_num=9
-progress： client_num=12
+
+Epoch 0: 5.65%
+Epoch 0: 4.25%
+Epoch 0: 3.72%
+Epoch 1: 41.16%
+Epoch 1: 42.46%
+Epoch 1: 41.11%
+Epoch 2: 58.01%
+Epoch 2: 53.86%
+Epoch 2: 51.87%
+Epoch 3: 62.55%
+Epoch 3: 59.95%
+Epoch 3: 59.48%
+Epoch 4: 63.45%
+Epoch 4: 64.70%
+Epoch 0: 4.24%
+Epoch 1: 38.34%
+Epoch 0: 3.71%
+Epoch 1: 41.34%
+Epoch 0: 4.09%
+Epoch 1: 39.47%

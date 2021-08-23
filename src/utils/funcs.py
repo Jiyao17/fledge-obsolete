@@ -26,6 +26,7 @@ def get_argument_parser() -> ArgumentParser:
     ap.add_argument("-r", "--result_file", type=str, default="./result.txt")
     ap.add_argument("-v", "--verbosity", type=int,default=1)
     ap.add_argument("-n", "--run_num", type=int, default=1)
+    ap.add_argument("-f", "--progress_file", type=str, default=None)
 
     return ap
 
