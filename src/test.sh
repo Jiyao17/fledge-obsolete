@@ -4,7 +4,7 @@
 progress_file="./progress.txt"
 # program_stdout="program_stdout.txt" # stdout of the program, not the shell
 local_data_num=5000 # data per client
-client_nums=( 3 6 9 12 )
+client_nums=( 1 )
 
 # single task config
 task=$1

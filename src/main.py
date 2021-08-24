@@ -22,7 +22,7 @@ def run_sim(que: Queue, progress_file: str, task, g_epoch_num, client_num, l_dat
     server = Server(task, test_dataset, clients, g_epoch_num, device)
 
     result: List[float] = []
-    pf = open(progress_file, "a")
+    pf = open(progress_file, "w")
     for i in range(server.epoch_num):
         if verbosity >= 1:
             print("Epoch %d ......" % i)

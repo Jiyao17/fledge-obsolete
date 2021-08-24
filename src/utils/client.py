@@ -101,7 +101,7 @@ class Client():
             n_output=len(labels)
             )
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.lr, weight_decay=0.0001)
-        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.1)  # reduce the learning after 20 epochs by a factor of 10
+        self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.5)  # reduce the learning after 20 epochs by a factor of 10
 
     def _train_FashionMNIST(self):
         for batch, (X, y) in enumerate(self.train_dataloader):
