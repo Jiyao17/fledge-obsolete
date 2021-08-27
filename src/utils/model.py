@@ -105,3 +105,22 @@ class SpeechCommand_M5(nn.Module):
         x = x.permute(0, 2, 1)
         x = self.fc1(x)
         return F.log_softmax(x, dim=2)
+
+
+class TextClassification(nn.Module):
+
+    def __init__(self, vocab_size, embed_dim, num_class):
+        super(TextClassification, self).__init__()
+        self.embedding = nn.EmbeddingBag(vocab_size, embed_dim, sparse=True)
+        self.fc = nn.Linear(embed_dim, num_class)
+        self.init_weights()
+
+    def init_weights(self):
+        initrange = 0.5
+        self.embedding.weight.data.uniform_(-initrange, initrange)
+        self.fc.weight.data.uniform_(-initrange, initrange)
+        self.fc.bias.data.zero_()
+
+    def forward(self, text, offsets):
+        embedded = self.embedding(text, offsets)
+        return self.fc(embedded)

@@ -1,4 +1,9 @@
 
+# code source:
+# FashionMNIST: pytorch tutorial quickstart
+# SpeechCommand: pytorch tutorial audio
+# TextClassification: pytorch tutorial text
+
 from io import TextIOWrapper
 from multiprocessing.context import Process
 from multiprocessing import Process, Queue, set_start_method

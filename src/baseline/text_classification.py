@@ -1,7 +1,8 @@
+
+# pytorch text tutorial
+
 import torch
 from torchtext.datasets import AG_NEWS
-train_iter = AG_NEWS(split='train')
-
 from torchtext.data.utils import get_tokenizer
 from torchtext.vocab import build_vocab_from_iterator
 
@@ -14,7 +15,7 @@ def yield_tokens(data_iter):
 
 vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
 vocab.set_default_index(vocab["<unk>"])
-
+ 
 text_pipeline = lambda x: vocab(tokenizer(x))
 label_pipeline = lambda x: int(x) - 1
 
