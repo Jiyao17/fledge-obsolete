@@ -78,7 +78,7 @@ if __name__ == "__main__":
             )
 
     # input check
-    SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand"]
+    SUPPORTED_TASKS = ["FashionMNIST", "SpeechCommand", "AG_NEWS"]
     if TASK not in SUPPORTED_TASKS:
         raise "Task not supported!"
     if check_device(DEVICE) == False:

@@ -26,7 +26,7 @@ def get_argument_parser() -> ArgumentParser:
     ap.add_argument("-r", "--result_file", type=str, default="./result.txt")
     ap.add_argument("-v", "--verbosity", type=int,default=1)
     ap.add_argument("-n", "--run_num", type=int, default=1)
-    ap.add_argument("-f", "--progress_file", type=str, default=None)
+    ap.add_argument("-f", "--progress_file", type=str, default="./progress.txt")
 
     return ap
 
@@ -58,6 +58,8 @@ def get_partitioned_datasets(
             )
     elif task == "SpeechCommand":
         train_dataset = SubsetSC("training", data_path)
+    elif task == "AG_NEWS":
+        pass
 
     dataset_size = len(train_dataset)
     # subset division
@@ -80,5 +82,7 @@ def get_test_dataset(task: str, data_path: str) -> Subset:
             )
     elif task == "SpeechCommand":
         test_dataset = SubsetSC("testing", data_path)
+    elif task == "AG_NEWS":
+        pass
 
     return test_dataset

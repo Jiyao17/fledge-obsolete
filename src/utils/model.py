@@ -107,7 +107,7 @@ class SpeechCommand_M5(nn.Module):
         return F.log_softmax(x, dim=2)
 
 
-class TextClassification(nn.Module):
+class AG_NEWS_TEXT(nn.Module):
 
     def __init__(self, vocab_size, embed_dim, num_class):
         super(TextClassification, self).__init__()
