@@ -7,6 +7,13 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader, Subset, random_split
 
+import torch
+from torchtext.datasets import AG_NEWS
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
+from torchtext.data.functional import to_map_style_dataset
+
+
 from utils.audio import SubsetSC
 
 
@@ -59,7 +66,8 @@ def get_partitioned_datasets(
     elif task == "SpeechCommand":
         train_dataset = SubsetSC("training", data_path)
     elif task == "AG_NEWS":
-        pass
+        train_iter = AG_NEWS(split="train")
+        train_dataset = to_map_style_dataset(train_iter)
 
     dataset_size = len(train_dataset)
     # subset division
@@ -83,6 +91,7 @@ def get_test_dataset(task: str, data_path: str) -> Subset:
     elif task == "SpeechCommand":
         test_dataset = SubsetSC("testing", data_path)
     elif task == "AG_NEWS":
-        pass
+        test_iter = AG_NEWS(split="test")
+        test_dataset = to_map_style_dataset(test_iter)
 
     return test_dataset
