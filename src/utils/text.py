@@ -41,4 +41,3 @@ train_iter = AG_NEWS(split='train')
 num_class = len(set([label for (label, text) in train_iter]))
 vocab_size = len(vocab)
 emsize = 64
-model = AG_NEWS_TEXT(vocab_size, emsize, num_class).to(device)

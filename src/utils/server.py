@@ -68,6 +68,7 @@ class Server():
                 n_input=transformed.shape[0],
                 n_output=len(labels)
                 )
+                
         self.state_dicts = [
             client.model.state_dict()
             for client in self.clients
