@@ -116,7 +116,7 @@ class Client():
             batch_size=self.batch_size,
             shuffle=False,
             collate_fn=collate_batch)
-        self.model = model = AG_NEWS_TEXT(vocab_size, emsize, num_class)
+        self.model = AG_NEWS_TEXT(vocab_size, emsize, num_class)
         self.loss_fn = CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.1)
