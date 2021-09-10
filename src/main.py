@@ -38,12 +38,14 @@ def run_sim(que: Queue, progress_file: str, task, g_epoch_num, client_num, l_dat
         server.aggregate_model()
         # l_accuracy = [client.test_model() for client in server.clients]
         g_accuracy = server.test_model()
+
         if verbosity >= 1:
             print(f"Global accuracy:{g_accuracy*100:.2f}%")
             pf.write(f"Epoch {i}: {g_accuracy*100:.2f}%\n")
-            if i % 10 == 9:
-                pf.flush()
+            # if i % 10 == 9:
+            pf.flush()
             # print(f"Local accuracy after training: {[acc for acc in l_accuracy]}")
+        
         if i % 10 == 9:
             result.append(g_accuracy)
 
@@ -111,10 +113,11 @@ if __name__ == "__main__":
             args + "\n"
             )
 
-        while que.empty() == False:
-            result = que.get()
+        for i in range(RUN_NUM):
+            result = que.get(block=True)
             print(result)
             [f.write(f"{num*100:.2f}% ") for num in result]
             f.write("\n")
+            f.flush()
         
         f.write("\n")

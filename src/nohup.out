@@ -2008,3 +2008,19 @@ Input args: SpeechCommand 1000 1 60000 1 256 0.010000 ../data cuda ./result.txt
 ./test.sh: line 35:  8576 Terminated              CUDA_VISIBLE_DEVICES=2 python main.py $task $global_epoch_num ${client_nums[$i]} $local_data_num $local_epoch_num $local_batch_size $local_lr -p $data_path -d $device -r $result_file -v $verbosity -n $run_num -f $progress_file
 /usr/lib/python3.6/multiprocessing/semaphore_tracker.py:143: UserWarning: semaphore_tracker: There appear to be 3 leaked semaphores to clean up at shutdown
   len(cache))
+ CUDA_VISIBLE_DEVICES=2 python ./main.py SpeechCommand 1000 1         60000 1 256 0.01         -p ../data -d cuda -r ./result.txt -v 2 -n 1 -f ./progress.txt
+Traceback (most recent call last):
+  File "main.py", line 13, in <module>
+    from utils.server import Server
+  File "/home/tuo28237/projects/fledge/src/utils/server.py", line 12, in <module>
+    from utils.client import Client
+  File "/home/tuo28237/projects/fledge/src/utils/client.py", line 19, in <module>
+    from utils.text import collate_batch, vocab_size, emsize, num_class
+  File "/home/tuo28237/projects/fledge/src/utils/text.py", line 6, in <module>
+    from model import AG_NEWS_TEXT
+ModuleNotFoundError: No module named 'model'
+ CUDA_VISIBLE_DEVICES=2 python ./main.py SpeechCommand 1000 1         60000 1 256 0.01         -p ../data -d cuda -r ./result.txt -v 2 -n 1 -f ./progress.txt
+Input args: SpeechCommand 1000 1 60000 1 256 0.010000 ../data cuda ./result.txt
+./test.sh: line 35: 29779 Terminated              CUDA_VISIBLE_DEVICES=2 python main.py $task $global_epoch_num ${client_nums[$i]} $local_data_num $local_epoch_num $local_batch_size $local_lr -p $data_path -d $device -r $result_file -v $verbosity -n $run_num -f $progress_file
+/usr/lib/python3.6/multiprocessing/semaphore_tracker.py:143: UserWarning: semaphore_tracker: There appear to be 3 leaked semaphores to clean up at shutdown
+  len(cache))

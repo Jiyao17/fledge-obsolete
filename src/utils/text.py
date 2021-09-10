@@ -3,7 +3,7 @@ from torchtext.vocab import build_vocab_from_iterator
 import torch
 from torchtext.datasets import AG_NEWS
 
-from model import AG_NEWS_TEXT
+from utils.model import AG_NEWS_TEXT
 
 train_iter = AG_NEWS(split='train')
 tokenizer = get_tokenizer('basic_english')
