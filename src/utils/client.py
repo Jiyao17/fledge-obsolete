@@ -64,6 +64,11 @@ class Client():
             elif self.task == "SpeechCommand":
                 self._train_SpeechCommand()
                 self.scheduler.step()
+            elif self.task == "AG_NEWS":
+                self._train_AG_NEWS()
+                self.scheduler.step()
+            else:
+                raise "Unsupported task."
 
     def _init_FashionMNIST(self):
         self.train_dataloader = DataLoader(
@@ -121,8 +126,6 @@ class Client():
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.1)
 
-
-
     def _train_FashionMNIST(self):
         for batch, (X, y) in enumerate(self.train_dataloader):
             # Compute prediction and loss
@@ -149,26 +152,15 @@ class Client():
             self.optimizer.step()
 
     def _train_AG_NEWS(self):
-        self.model.train()
-        # total_acc, total_count = 0, 0
-        # log_interval = 500
 
         for idx, (label, text, offsets) in enumerate(self.train_dataloader):
+            
+            predicted_label = self.model(text.cuda(), offsets.cuda())
+            loss = self.loss_fn(predicted_label, label.cuda())
             self.optimizer.zero_grad()
-            predicted_label = self.model(text, offsets)
-            loss = self.loss_fn(predicted_label, label)
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
             self.optimizer.step()
-            # total_acc += (predicted_label.argmax(1) == label).sum().item()
-            # total_count += label.size(0)
-            # if idx % log_interval == 0 and idx > 0:
-            #     print('| epoch {:3d} | {:5d}/{:5d} batches '
-            #         '| accuracy {:8.3f}'.format(epoch, idx, len(dataloader),
-            #                                     total_acc/total_count))
-            #     total_acc, total_count = 0, 0
-            #     start_time = time.time()
-
 
     def test_model(self) -> float:
         # functionality of testing local model is not guaranteed yet
@@ -178,7 +170,8 @@ class Client():
             accuracy = self._test_FashionMNIST()
         if self.task == "SpeechCommand":
             accuracy = self._test_SpeechCommand()
-        
+        if self.task == "AG_NEWS":
+            accuracy = self._train_AG_NEWS()
         return accuracy
 
     def _test_FashionMNIST(self):
@@ -210,3 +203,6 @@ class Client():
         #     correct += number_of_correct(pred, target)
 
         # return 1.0 * correct / dataset_size
+
+    def _test_AG_NEWS(self):
+        pass

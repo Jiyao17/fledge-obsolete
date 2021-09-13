@@ -18,7 +18,7 @@ vocab.set_default_index(vocab["<unk>"])
 text_pipeline = lambda x: vocab(tokenizer(x))
 label_pipeline = lambda x: int(x) - 1
 
-from torch.utils.data import DataLoader
+# from torch.utils.data import DataLoader
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def collate_batch(batch):
@@ -33,8 +33,8 @@ def collate_batch(batch):
     text_list = torch.cat(text_list)
     return label_list.to(device), text_list.to(device), offsets.to(device)
 
-train_iter = AG_NEWS(split='train')
-dataloader = DataLoader(train_iter, batch_size=8, shuffle=False, collate_fn=collate_batch)
+# train_iter = AG_NEWS(split='train')
+# dataloader = DataLoader(train_iter, batch_size=8, shuffle=False, collate_fn=collate_batch)
 
 
 train_iter = AG_NEWS(split='train')

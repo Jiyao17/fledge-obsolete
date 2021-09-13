@@ -7,10 +7,13 @@
         
         {
             "name": "Python: Current File",
+            "env": {"CUDA_VISIBLE_DEVICES":"1"},
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": ["AG_NEWS", "100", "3", "2000", "5", "256", "0.01", "-d", "cuda", "-n", "1"]
+
         }
     ]
 }
