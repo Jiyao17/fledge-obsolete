@@ -77,14 +77,14 @@ class Server():
             self.model = AG_NEWS_TEXT(vocab_size, emsize, num_class)
 
 
-        self.state_dicts = [
-            client.model.state_dict()
-            for client in self.clients
-            ]
+        # self.state_dicts = [
+        #     client.model.state_dict()
+        #     for client in self.clients
+        #     ]
 
-        dic = self.model.state_dict()
-        self.init_model_dict = copy.deepcopy(dic)
-        del(dic)
+        # dic = self.model.state_dict()
+        # self.init_model_dict = copy.deepcopy(dic)
+        # del(dic)
 
     def distribute_model(self):
         """
@@ -101,11 +101,11 @@ class Server():
             for client in self.clients
             ]
         # calculate average model
-        state_dict_avg = state_dicts[0]
+        state_dict_avg = copy.deepcopy(state_dicts[0]) 
         for key in state_dict_avg.keys():
             for i in range(1, len(state_dicts)):
                 state_dict_avg[key] += state_dicts[i][key]
-            state_dict_avg[key] = torch.div(state_dict_avg[key], len(self.state_dicts))
+            state_dict_avg[key] = torch.div(state_dict_avg[key], len(state_dicts))
         
         self.model.load_state_dict(state_dict_avg)
 
@@ -155,7 +155,7 @@ class Server():
 
     def _test_AG_NEWS(self):
         total_acc, total_count = 0, 0
-
+        
         for idx, (label, text, offsets) in enumerate(self.test_dataloader):
             predicted_label = self.model(text, offsets)
             # loss = self.loss_fn(predicted_label, label)

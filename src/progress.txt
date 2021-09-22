@@ -1,4 +1,4 @@
-Epoch 0: 25.54%
-Epoch 1: 25.54%
-Epoch 2: 25.54%
-Epoch 3: 25.54%
+Epoch 0: 25.01%
+Epoch 1: 25.01%
+Epoch 2: 25.01%
+Epoch 3: 25.01%

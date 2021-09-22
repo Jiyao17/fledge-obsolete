@@ -6,11 +6,11 @@
     "configurations": [
         
         {
-            "name": "Python: Current File",
+            "name": "Main",
             "env": {"CUDA_VISIBLE_DEVICES":"1"},
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "/home/tuo28237/projects/fledge/src/main.py",
             "console": "integratedTerminal",
             "args": ["AG_NEWS", "100", "3", "2000", "5", "256", "0.01", "-d", "cuda", "-n", "1"]
 

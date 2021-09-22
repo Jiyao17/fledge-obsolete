@@ -115,16 +115,24 @@ class Client():
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.5)  # reduce the learning after 20 epochs by a factor of 10
 
     def _init_AG_NEWS(self):
-        train_iter = AG_NEWS(split='train')
+        # train_iter = AG_NEWS(split='train')
         self.train_dataloader = DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            shuffle=False,
-            collate_fn=collate_batch)
+            shuffle=True,
+            collate_fn=collate_batch,
+            drop_last=True)
         self.model = AG_NEWS_TEXT(vocab_size, emsize, num_class)
         self.loss_fn = CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.1)
+
+        self.test_dataset = get_test_dataset(self.task, "~/projects/fledge/data")
+        self.test_dataloader = DataLoader(
+            self.test_dataset,
+            batch_size=64,
+            shuffle=False,
+            collate_fn=collate_batch)
 
     def _train_FashionMNIST(self):
         for batch, (X, y) in enumerate(self.train_dataloader):
@@ -153,13 +161,13 @@ class Client():
 
     def _train_AG_NEWS(self):
 
-        for idx, (label, text, offsets) in enumerate(self.train_dataloader):
-            
-            predicted_label = self.model(text.cuda(), offsets.cuda())
-            loss = self.loss_fn(predicted_label, label.cuda())
+        for idx, (label, text, offsets) in enumerate(self.train_dataloader, 0):
             self.optimizer.zero_grad()
+            predicted_label = self.model(text.cuda(), offsets.cuda())
+            criterion = torch.nn.CrossEntropyLoss()
+            loss = criterion(predicted_label, label.cuda())
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
+            # torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
             self.optimizer.step()
 
     def test_model(self) -> float:
@@ -171,7 +179,7 @@ class Client():
         if self.task == "SpeechCommand":
             accuracy = self._test_SpeechCommand()
         if self.task == "AG_NEWS":
-            accuracy = self._train_AG_NEWS()
+            accuracy = self._test_AG_NEWS()
         return accuracy
 
     def _test_FashionMNIST(self):
@@ -205,4 +213,14 @@ class Client():
         # return 1.0 * correct / dataset_size
 
     def _test_AG_NEWS(self):
-        pass
+
+
+        total_acc, total_count = 0, 0
+        with torch.no_grad():
+            for idx, (label, text, offsets) in enumerate(self.test_dataloader, 0):
+                predicted_label = self.model(text, offsets)
+                # loss = self.loss_fn(predicted_label, label)
+                total_acc += (predicted_label.argmax(1) == label).sum().item()
+                total_count += label.size(0)
+            
+        return total_acc/total_count
