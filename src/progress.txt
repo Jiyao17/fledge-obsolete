@@ -1,11 +1,4 @@
-Epoch 0: 23.89%
-Epoch 1: 23.89%
-Epoch 2: 23.89%
-Epoch 3: 23.89%
-Epoch 4: 23.89%
-Epoch 5: 23.89%
-Epoch 6: 23.89%
-Epoch 7: 23.89%
-Epoch 8: 23.89%
-Epoch 9: 23.89%
-Epoch 10: 23.89%
+Epoch 0: 25.54%
+Epoch 1: 25.54%
+Epoch 2: 25.54%
+Epoch 3: 25.54%

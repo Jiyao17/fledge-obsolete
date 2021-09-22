@@ -117,7 +117,7 @@ class Client():
     def _init_AG_NEWS(self):
         train_iter = AG_NEWS(split='train')
         self.train_dataloader = DataLoader(
-            train_iter,
+            self.train_dataset,
             batch_size=self.batch_size,
             shuffle=False,
             collate_fn=collate_batch)
