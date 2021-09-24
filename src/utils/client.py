@@ -16,7 +16,9 @@ from torchtext.datasets import AG_NEWS
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5, AG_NEWS_TEXT
 from utils.audio import collate_fn, set_LABELS
 from utils.funcs import get_test_dataset
-from utils.text import collate_batch, vocab_size, emsize, num_class
+# from utils.text import collate_batch, vocab_size, emsize, num_class
+from utils.text import collate_batch#, vocab_size, emsize, num_class
+
 
 
 class Client():
@@ -65,8 +67,10 @@ class Client():
                 self._train_SpeechCommand()
                 self.scheduler.step()
             elif self.task == "AG_NEWS":
-                self._train_AG_NEWS()
+                acc = self._train_AG_NEWS_1()
                 self.scheduler.step()
+
+                return acc
             else:
                 raise "Unsupported task."
 
@@ -122,7 +126,7 @@ class Client():
             shuffle=True,
             collate_fn=collate_batch,
             drop_last=True)
-        self.model = AG_NEWS_TEXT(vocab_size, emsize, num_class)
+        self.model = AG_NEWS_TEXT()
         self.loss_fn = CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.1)
@@ -132,7 +136,9 @@ class Client():
             self.test_dataset,
             batch_size=64,
             shuffle=False,
-            collate_fn=collate_batch)
+            collate_fn=collate_batch,
+            drop_last=True,
+            )
 
     def _train_FashionMNIST(self):
         for batch, (X, y) in enumerate(self.train_dataloader):
@@ -160,15 +166,35 @@ class Client():
             self.optimizer.step()
 
     def _train_AG_NEWS(self):
-
+        self.model.train()
         for idx, (label, text, offsets) in enumerate(self.train_dataloader, 0):
-            self.optimizer.zero_grad()
+            
             predicted_label = self.model(text.cuda(), offsets.cuda())
-            criterion = torch.nn.CrossEntropyLoss()
-            loss = criterion(predicted_label, label.cuda())
+            loss = self.loss_fn(predicted_label, label.cuda())
+            self.optimizer.zero_grad()
             loss.backward()
-            # torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
             self.optimizer.step()
+
+    def _train_AG_NEWS_1(self):
+        self.model.train()
+        total_acc, total_count = 0, 0
+        log_interval = 500
+
+        for idx, (label, text, offsets) in enumerate(self.train_dataloader):
+            self.optimizer.zero_grad()
+            predicted_label = self.model(text, offsets)
+            loss = self.loss_fn(predicted_label, label)
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
+            self.optimizer.step()
+
+            
+            total_acc += (predicted_label.argmax(1) == label).sum().item()
+            total_count += label.size(0)
+        
+        return total_acc/total_count
+
 
     def test_model(self) -> float:
         # functionality of testing local model is not guaranteed yet
@@ -213,7 +239,7 @@ class Client():
         # return 1.0 * correct / dataset_size
 
     def _test_AG_NEWS(self):
-
+        self.model.eval()
 
         total_acc, total_count = 0, 0
         with torch.no_grad():

@@ -3,8 +3,6 @@ from torchtext.vocab import build_vocab_from_iterator
 import torch
 from torchtext.datasets import AG_NEWS
 
-from utils.model import AG_NEWS_TEXT
-
 train_iter = AG_NEWS(split='train')
 tokenizer = get_tokenizer('basic_english')
 
@@ -37,7 +35,7 @@ def collate_batch(batch):
 # dataloader = DataLoader(train_iter, batch_size=8, shuffle=False, collate_fn=collate_batch)
 
 
-train_iter = AG_NEWS(split='train')
-num_class = len(set([label for (label, text) in train_iter]))
-vocab_size = len(vocab)
-emsize = 64
+# train_iter = AG_NEWS(split='train')
+# num_class = len(set([label for (label, text) in train_iter]))
+# vocab_size = len(vocab)
+# emsize = 64

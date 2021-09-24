@@ -39,14 +39,14 @@ def run_sim(que: Queue, progress_file: str, task, g_epoch_num, client_num, l_dat
         if verbosity >= 1:
             print("Epoch %d ......" % i)
 
-        server.distribute_model()
+        # server.distribute_model()
         for j in range(len(server.clients)):
-            # acc = server.clients[j].test_model()
-            # print("before training: client %d accuracy %.9f at epoch %d" % (j, acc, i))
+            acc = server.clients[j].test_model()
+            print("before training: client %d accuracy %.9f at epoch %d" % (j, acc, i))
             server.clients[j].train_model()
-            # acc = server.clients[j].test_model()
-            # print("after training:  client %d accuracy %.9f at epoch %d" % (j, acc, i))
-        server.aggregate_model()
+            acc = server.clients[j].test_model()
+            print("after training:  client %d accuracy %.9f at epoch %d" % (j, acc, i))
+        # server.aggregate_model()
         # l_accuracy = [client.test_model() for client in server.clients]
         g_accuracy = server.test_model()
 

@@ -63,7 +63,9 @@ num_class = len(set([label for (label, text) in train_iter]))
 vocab_size = len(vocab)
 emsize = 64
 model = TextClassificationModel(vocab_size, emsize, num_class).to(device)
-
+# print(vocab_size)
+# print(num_class)
+# exit()
 import time
 
 def train(dataloader):
@@ -79,6 +81,8 @@ def train(dataloader):
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 0.1)
         optimizer.step()
+
+
         total_acc += (predicted_label.argmax(1) == label).sum().item()
         total_count += label.size(0)
         if idx % log_interval == 0 and idx > 0:

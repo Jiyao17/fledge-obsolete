@@ -108,8 +108,7 @@ class SpeechCommand_M5(nn.Module):
 
 
 class AG_NEWS_TEXT(nn.Module):
-
-    def __init__(self, vocab_size, embed_dim, num_class):
+    def __init__(self, vocab_size = 95811, embed_dim = 64, num_class = 4):
         super(AG_NEWS_TEXT, self).__init__()
         self.embedding = nn.EmbeddingBag(vocab_size, embed_dim, sparse=True)
         self.fc = nn.Linear(embed_dim, num_class)
