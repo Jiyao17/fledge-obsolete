@@ -133,16 +133,19 @@ test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE,
 for epoch in range(1, EPOCHS + 1):
     epoch_start_time = time.time()
     train(train_dataloader)
-    accu_val = evaluate(valid_dataloader)
-    if total_accu is not None and total_accu > accu_val:
-      scheduler.step()
-    else:
-       total_accu = accu_val
+    # accu_val = evaluate(valid_dataloader)
+    # if total_accu is not None and total_accu > accu_val:
+    #   scheduler.step()
+    # else:
+    #    total_accu = accu_val
     print('-' * 59)
-    print('| end of epoch {:3d} | time: {:5.2f}s | '
-          'valid accuracy {:8.3f} '.format(epoch,
+    # print('| end of epoch {:3d} | time: {:5.2f}s | '
+    #     'valid accuracy {:8.3f} '.format(epoch,
+    #                                     time.time() - epoch_start_time,
+    #                                     accu_val))
+    print('| end of epoch {:3d} | time: {:5.2f}s | '.format(epoch,
                                            time.time() - epoch_start_time,
-                                           accu_val))
+                                           ))
     print('-' * 59)
 
 print('Checking the results of test dataset.')

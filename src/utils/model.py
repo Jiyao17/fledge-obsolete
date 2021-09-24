@@ -1,6 +1,7 @@
 
 from torch import nn
 import torch.nn.functional as F
+import torch
 
 
 class FashionMNIST_CNN(nn.Module):
@@ -114,6 +115,18 @@ class AG_NEWS_TEXT(nn.Module):
         self.fc = nn.Linear(embed_dim, num_class)
         self.init_weights()
 
+        from torchtext.data.utils import get_tokenizer
+        from torchtext.vocab import build_vocab_from_iterator
+        from torchtext.datasets import AG_NEWS
+
+        train_iter = AG_NEWS(split='train')
+        self.tokenizer = get_tokenizer('basic_english')
+        self.vocab = build_vocab_from_iterator(self.yield_tokens(train_iter), specials=["<unk>"])
+        self.vocab.set_default_index(self.vocab["<unk>"])
+        self.text_pipeline = lambda x: self.vocab(self.tokenizer(x))
+        self.label_pipeline = lambda x: int(x) - 1
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     def init_weights(self):
         initrange = 0.5
         self.embedding.weight.data.uniform_(-initrange, initrange)
@@ -123,3 +136,19 @@ class AG_NEWS_TEXT(nn.Module):
     def forward(self, text, offsets):
         embedded = self.embedding(text, offsets)
         return self.fc(embedded)
+
+    def yield_tokens(self, data_iter):
+        for _, text in data_iter:
+            yield self.tokenizer(text)
+    
+    def collate_batch(self, batch):
+        label_list, text_list, offsets = [], [], [0]
+        for (_label, _text) in batch:
+            label_list.append(self.label_pipeline(_label))
+            processed_text = torch.tensor(self.text_pipeline(_text), dtype=torch.int64)
+            text_list.append(processed_text)
+            offsets.append(processed_text.size(0))
+        label_list = torch.tensor(label_list, dtype=torch.int64)
+        offsets = torch.tensor(offsets[:-1]).cumsum(dim=0)
+        text_list = torch.cat(text_list)
+        return label_list.to(self.device), text_list.to(self.device), offsets.to(self.device)

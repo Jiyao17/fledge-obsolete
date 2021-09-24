@@ -7,7 +7,7 @@ from utils.funcs import get_partitioned_datasets, get_test_dataset
 
 task = "AG_NEWS"
 client_num = 1
-l_data_num = 60000
+l_data_num = 10000
 l_batch_size = 64
 l_epoch_num = 5
 l_lr = 0.01
@@ -32,6 +32,7 @@ for i in range(100):
         # acc = clients[j].test_model()
         # print("before training: client %d accuracy %.9f at epoch %d" % (j, acc, i))
         acc = clients[j].train_model()
+        # print("training acc:  client %d accuracy %.9f at epoch %d" % (j, acc, i))
         acc = clients[j].test_model()
         print("after training:  client %d accuracy %.9f at epoch %d" % (j, acc, i))
 

@@ -10,6 +10,7 @@ from torch.nn.modules.loss import CrossEntropyLoss
 import torchaudio
 import torch.nn.functional as F
 
+import copy
 from torchtext.datasets import AG_NEWS
 
 
@@ -17,7 +18,7 @@ from utils.model import FashionMNIST_CNN, SpeechCommand_M5, AG_NEWS_TEXT
 from utils.audio import collate_fn, set_LABELS
 from utils.funcs import get_test_dataset
 # from utils.text import collate_batch, vocab_size, emsize, num_class
-from utils.text import collate_batch#, vocab_size, emsize, num_class
+# from utils.text import collate_batch#, vocab_size, emsize, num_class
 
 
 
@@ -44,8 +45,6 @@ class Client():
         self.scheduler = None
         self.model: nn.Module = None
         self.init_task()
-
-        self.test_list = [0]
 
     def init_task(self) -> nn.Module:
         if self.task == "FashionMNIST":
@@ -119,14 +118,14 @@ class Client():
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.5)  # reduce the learning after 20 epochs by a factor of 10
 
     def _init_AG_NEWS(self):
+        self.model = AG_NEWS_TEXT()
         # train_iter = AG_NEWS(split='train')
         self.train_dataloader = DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
             shuffle=True,
-            collate_fn=collate_batch,
+            collate_fn=self.model.collate_batch,
             drop_last=True)
-        self.model = AG_NEWS_TEXT()
         self.loss_fn = CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.1)
@@ -136,7 +135,7 @@ class Client():
             self.test_dataset,
             batch_size=64,
             shuffle=False,
-            collate_fn=collate_batch,
+            collate_fn=self.model.collate_batch,
             drop_last=True,
             )
 
@@ -177,9 +176,9 @@ class Client():
             self.optimizer.step()
 
     def _train_AG_NEWS_1(self):
-        self.model.train()
+        # self.m = copy.deepcopy(self.model)
+        # self.m.train()
         total_acc, total_count = 0, 0
-        log_interval = 500
 
         for idx, (label, text, offsets) in enumerate(self.train_dataloader):
             self.optimizer.zero_grad()
@@ -193,6 +192,7 @@ class Client():
             total_acc += (predicted_label.argmax(1) == label).sum().item()
             total_count += label.size(0)
         
+        # self.model = copy.deepcopy(self.m)
         return total_acc/total_count
 
 
