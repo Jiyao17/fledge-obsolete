@@ -11,7 +11,7 @@ import torchaudio
 from utils.audio import collate_fn, number_of_correct, get_likely_index, set_LABELS, count_parameters
 from utils.client import Client
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5, AG_NEWS_TEXT
-from utils.text import collate_batch, vocab_size, emsize, num_class
+# from utils.text import collate_batch, vocab_size, emsize, num_class
 
 class Server():
     def __init__(self,
@@ -69,12 +69,13 @@ class Server():
                 n_output=len(labels)
                 )
         elif self.task == "AG_NEWS":
+            self.model = AG_NEWS_TEXT()
             self.test_dataloader = DataLoader(
                 self.test_dataset,
                 batch_size=64,
                 shuffle=False,
-                collate_fn=collate_batch)
-            self.model = AG_NEWS_TEXT(vocab_size, emsize, num_class)
+                collate_fn=self.model.collate_batch)
+            self.model = AG_NEWS_TEXT()
 
 
         # self.state_dicts = [

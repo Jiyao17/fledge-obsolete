@@ -17,8 +17,6 @@ from torchtext.datasets import AG_NEWS
 from utils.model import FashionMNIST_CNN, SpeechCommand_M5, AG_NEWS_TEXT
 from utils.audio import collate_fn, set_LABELS
 from utils.funcs import get_test_dataset
-# from utils.text import collate_batch, vocab_size, emsize, num_class
-# from utils.text import collate_batch#, vocab_size, emsize, num_class
 
 
 
@@ -67,9 +65,9 @@ class Client():
                 self.scheduler.step()
             elif self.task == "AG_NEWS":
                 acc = self._train_AG_NEWS_1()
-                self.scheduler.step()
+                # self.scheduler.step()
 
-                return acc
+                # return acc
             else:
                 raise "Unsupported task."
 
@@ -118,26 +116,11 @@ class Client():
         self.scheduler = optim.lr_scheduler.StepLR(self.optimizer, step_size=20, gamma=0.5)  # reduce the learning after 20 epochs by a factor of 10
 
     def _init_AG_NEWS(self):
-        self.model = AG_NEWS_TEXT()
-        # train_iter = AG_NEWS(split='train')
-        self.train_dataloader = DataLoader(
-            self.train_dataset,
-            batch_size=self.batch_size,
-            shuffle=True,
-            collate_fn=self.model.collate_batch,
-            drop_last=True)
-        self.loss_fn = CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=self.lr)
-        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.1)
+        
+        from test import ClientAGNEWS
+        self.agent = ClientAGNEWS(self.train_dataset, self.batch_size, self.lr)
+        self.model = self.agent.model
 
-        self.test_dataset = get_test_dataset(self.task, "~/projects/fledge/data")
-        self.test_dataloader = DataLoader(
-            self.test_dataset,
-            batch_size=64,
-            shuffle=False,
-            collate_fn=self.model.collate_batch,
-            drop_last=True,
-            )
 
     def _train_FashionMNIST(self):
         for batch, (X, y) in enumerate(self.train_dataloader):
@@ -176,25 +159,8 @@ class Client():
             self.optimizer.step()
 
     def _train_AG_NEWS_1(self):
-        # self.m = copy.deepcopy(self.model)
-        # self.m.train()
-        total_acc, total_count = 0, 0
-
-        for idx, (label, text, offsets) in enumerate(self.train_dataloader):
-            self.optimizer.zero_grad()
-            predicted_label = self.model(text, offsets)
-            loss = self.loss_fn(predicted_label, label)
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.1)
-            self.optimizer.step()
-
-            
-            total_acc += (predicted_label.argmax(1) == label).sum().item()
-            total_count += label.size(0)
+        self.agent.run(10, 64)
         
-        # self.model = copy.deepcopy(self.m)
-        return total_acc/total_count
-
 
     def test_model(self) -> float:
         # functionality of testing local model is not guaranteed yet

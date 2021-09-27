@@ -129,3 +129,15 @@ TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
 AG_NEWS              100          3       1000           5          256 0.01
 TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
 AG_NEWS              100          3       1000           5          256 0.01
+TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
+AG_NEWS              100          1       5000           1          256 0.01
+TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
+AG_NEWS              100          1       5000           1          256 0.01
+TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
+AG_NEWS              100          1       5000           1          256 0.01
+TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
+AG_NEWS              100          1       5000           1          256 0.01
+TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
+AG_NEWS              100          1       5000           1          256 0.01
+TASK          G_EPOCH_NUM CLIENT_NUM L_DATA_NUM L_EPOCH_NUM L_BATCH_SIZE L_LR
+AG_NEWS              100          1       5000           1          256 0.01
