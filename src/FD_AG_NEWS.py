@@ -32,12 +32,12 @@ class TextClassificationModel(nn.Module):
 
 class ClientAGNEWS:
     def __init__(self, dataset, testset, l_epoch, batch_size, lr) -> None:
-        self.test_dataloader = DataLoader(testset, batch_size=self.batch_size,
-                                    shuffle=True, collate_fn=self.collate_batch)
         self.batch_size = batch_size
         self.lr = lr
         self.l_epoch = l_epoch
-
+        self.test_dataloader = DataLoader(testset, batch_size=self.batch_size,
+                                    shuffle=True, collate_fn=self.collate_batch)
+        
         from torchtext.data.utils import get_tokenizer
         from torchtext.vocab import build_vocab_from_iterator
 
@@ -107,12 +107,12 @@ class ClientAGNEWS:
             #     total_acc, total_count = 0, 0
             #     start_time = time.time()
 
-    def evaluate(self, dataloader):
+    def evaluate(self):
         self.model.eval()
         total_acc, total_count = 0, 0
 
         with torch.no_grad():
-            for idx, (label, text, offsets) in enumerate(dataloader):
+            for idx, (label, text, offsets) in enumerate(self.test_dataloader):
                 predicted_label = self.model(text, offsets)
                 loss = self.criterion(predicted_label, label)
                 total_acc += (predicted_label.argmax(1) == label).sum().item()
@@ -161,19 +161,25 @@ def run_sim(que: Queue, progress_file: str, task, g_epoch_num, client_num, l_dat
     datasets = get_partitioned_datasets(task, client_num, l_data_num, l_batch_size, data_path)
     test_dataset = get_test_dataset(task, data_path)
 
-    ClientAGNEWS(datasets[1])
+    clients = [ClientAGNEWS(datasets[i], test_dataset, l_epoch_num, l_batch_size, l_lr) 
+        for i in range(client_num)]
 
-    if verbosity >= 1:
-        pf = open(progress_file, "a")
-        print(f"Global accuracy:{g_accuracy*100:.9f}%")
-        pf.write(f"Epoch {i}: {g_accuracy*100:.2f}%\n")
-        # if i % 10 == 9:
-        pf.flush()
-        pf.close()
-        # print(f"Local accuracy after training: {[acc for acc in l_accuracy]}")
+    result: list[float] = []
+    for i in range(g_epoch_num):
+        clients[0].run()
+        g_accuracy = clients[0].evaluate()
+
+        if verbosity >= 1:
+            pf = open(progress_file, "a")
+            print(f"Global accuracy:{g_accuracy*100:.9f}%")
+            pf.write(f"Epoch {i}: {g_accuracy*100:.2f}%\n")
+            # if i % 10 == 9:
+            pf.flush()
+            pf.close()
+            # print(f"Local accuracy after training: {[acc for acc in l_accuracy]}")
     
-    if i % 10 == 9:
-        result.append(g_accuracy)
+        if i % 10 == 9:
+            result.append(g_accuracy)
 
     que.put(result)
 
@@ -213,7 +219,8 @@ if __name__ == "__main__":
     if check_device(DEVICE) == False:
         raise "CUDA required by input but not equipped!"
 
-    # run_sim(Queue(), TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, RESULT_FILE, VERBOSITY)
+    
+    # run_sim(Queue(), "progress.txt", TASK, G_EPOCH_NUM, CLIENT_NUM, L_DATA_NUM, L_EPOCH_NUM, L_BATCH_SIZE, L_LR, DATA_PATH, DEVICE, VERBOSITY)
     # exit()
 
     set_start_method("spawn")
